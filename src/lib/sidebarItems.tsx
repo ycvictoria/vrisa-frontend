@@ -1,7 +1,7 @@
 export const sidebarItems: any = {
   admin: [
-    { name: "Gestión de Usuarios", href: "/admin/usuarios", icon: "👥" },
-    { name: "Autorización de Estaciones", href: "/admin/estaciones", icon: "🖥️" },
+    { name: "Gestión de Usuarios", href: "/admin/users", icon: "👨🏻‍💻" },
+    { name: "Autorización de Estaciones", href: "/admin/stations", icon: "🖥️" },
   ],
   estacion: [
     { name: "Solicitudes", href: "/estacion/solicitudes", icon: "📩" },
