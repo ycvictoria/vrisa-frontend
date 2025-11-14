@@ -3,12 +3,34 @@
 import { useEffect, useState } from "react";
 import { StatsCard } from "@/components/StatsCard";
 import { UsersTable } from "@/components/UsersTable";
-
+import SearchBar from "@/components/SearchBar";
+import DropdownSelect from "@/components/DropdownSelect";
+import Button from "@/components/Button";
+import { Title, Subtitle, Paragraph } from "@/components/Text";
 import { User } from "@/types/User";
 
-export default function UsuariosAdminPage() {
-const [users, setUsers] = useState<User[]>([]);
+export default function UsersAdminPage() {
+  const [users, setUsers] = useState<User[]>([]);
+  const [search, setSearch] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
 
+ 
+  //  Filtro combinado
+ 
+  const filteredUsers = users.filter((u) => {
+    const matchesSearch =
+      u.first_name.toLowerCase().includes(search.toLowerCase()) ||
+      u.idUser.toString().includes(search.toLowerCase());
+
+    const matchesStatus =
+      filterStatus === "all" || u.status === filterStatus;
+
+    return matchesSearch && matchesStatus;
+  });
+
+  
+  //  Cargar usuarios mock
+ 
   useEffect(() => {
     async function loadUsers() {
       try {
@@ -25,20 +47,25 @@ const [users, setUsers] = useState<User[]>([]);
     loadUsers();
   }, []);
 
-  // Estos stats pueden calcularse dinámicamente si quieres
+  
+  // Stats dinámicos
   const stats = [
     { title: "Usuarios totales", value: users.length },
-    { title: "Usuarios activos", value: users.filter(u => u.status === "active").length },
+    {
+      title: "Usuarios activos",
+      value: users.filter((u) => u.status === "active").length,
+    },
     { title: "Autorizaciones pendientes", value: 1 },
   ];
 
   return (
     <div className="space-y-8">
+      {/* Header */}
       <header>
-        <h1 className="text-2xl font-bold text-gray-800">Gestión de Usuarios y Autorizaciones</h1>
-        <p className="text-gray-600">
+        <Title>👨🏻‍💻 Gestión de Usuarios y Autorizaciones</Title>
+        <Paragraph>
           Para manejar todos los usuarios registrados, asignar roles y autorizar accesos.
-        </p>
+        </Paragraph>
       </header>
 
       {/* Stats */}
@@ -50,16 +77,35 @@ const [users, setUsers] = useState<User[]>([]);
 
       {/* Tabla */}
       <section className="space-y-4">
-        <div className="flex justify-between">
-          <p className="font-medium text-lg text-gray-800">Todos los usuarios</p>
-
-          <button className="px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-sm">
+        <div className="flex justify-between items-center">
+          <Subtitle>Todos los usuarios</Subtitle>
+          <Button variant="primary" size="md">
             + Agregar Nuevo Usuario
-          </button>
+          </Button>
+          
         </div>
 
-        {/* Aquí ya se usa el mock real */}
-        <UsersTable users={users} />
+        {/* 🔍 Buscador + Filtro */}
+        <div className="flex gap-4 justify-between">
+          <SearchBar
+            placeholder="Buscar por nombre o ID..."
+            onSearch={setSearch}
+          />
+
+          <DropdownSelect
+          
+            value={filterStatus}
+            onChange={setFilterStatus}
+            options={[
+              { value: "all", label: "Todos" },
+              { value: "active", label: "Activos" },
+              { value: "inactive", label: "Inactivos" },
+            ]}
+          />
+        </div>
+
+        {/* Tabla filtrada */}
+        <UsersTable users={filteredUsers} />
       </section>
     </div>
   );
