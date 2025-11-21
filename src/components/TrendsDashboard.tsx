@@ -17,7 +17,7 @@ function KPICard({ title, value, subtitle }: any) {
 }
 
 export default function TrendsDashboard({ role }: Props) {
-  // datos mock (en produccion vendrian desde API)
+  // datos mock (en producción vendrían desde API)
   const kpis = [
     { title: "Estaciones Operativas", value: "18/20" },
     { title: "Alertas Activas", value: 5 },
@@ -33,6 +33,7 @@ export default function TrendsDashboard({ role }: Props) {
 
   // helper simple para estilizar severidad
   const severityClass = (s: string) => {
+    if (!s) return "bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs";
     if (s.toLowerCase().includes("crít")) return "bg-red-500 text-white px-3 py-1 rounded-full text-xs";
     if (s.toLowerCase().includes("moder")) return "bg-yellow-200 text-gray-800 px-3 py-1 rounded-full text-xs";
     return "bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs";
@@ -58,8 +59,8 @@ export default function TrendsDashboard({ role }: Props) {
         <div className="flex justify-between items-center mb-4">
           <h3 className="font-semibold">Estaciones con Alertas Recientes</h3>
 
-          {/* botones: ver historico - solo para institucion/investigador */}
-          {(role === "institucion" || role === "investigador") && (
+          {/* botones: ver histórico - solo para institucion/investigador */}
+          {(role === "institucion" || role === "investigador" || role === "institution" || role === "investigator") && (
             <div className="flex gap-2">
               <button className="px-4 py-1 bg-indigo-500 text-white rounded">Ver Historial de Alertas</button>
               <button className="px-4 py-1 bg-indigo-500 text-white rounded">Ver Mantenimientos</button>
@@ -92,7 +93,7 @@ export default function TrendsDashboard({ role }: Props) {
         </table>
       </div>
 
-      {/* Grafico placeholder (reemplazar por Recharts/Chart.js) */}
+      {/* Gráfico placeholder (reemplazar por Recharts/Chart.js) */}
       <div className="border rounded-lg p-4 bg-white shadow-sm">
         <div className="flex justify-between items-center mb-4">
           <h3 className="font-semibold">Tendencias de Calidad Ambiental</h3>
@@ -103,7 +104,7 @@ export default function TrendsDashboard({ role }: Props) {
           </select>
         </div>
 
-        {/* integrar Recharts o cualquier libreria*/}
+        {/* aquí puedes integrar Recharts o cualquier librería; por ahora placeholder */}
         <div className="h-64 flex items-center justify-center text-gray-400">
           [Gráfico de líneas — integrar Recharts/Chart.js en producción]
         </div>

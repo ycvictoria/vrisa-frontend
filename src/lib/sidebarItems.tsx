@@ -9,14 +9,15 @@ export const sidebarItems: any = {
     { name: "Mantenimiento", href: "/estacion/mantenimiento", icon: "🛠️" },
   ],
   institucion: [
-    { name: "Investigadores", href: "/institucion/investigadores", icon: "👩‍🔬" },
-    { name: "Permisos", href: "/institucion/permisos", icon: "📝" },
+    { name: "Investigadores", href: "/institution/investigadores", icon: "👩‍🔬" },
+    { name: "Permisos", href: "/institution/permisos", icon: "📝" },
+    { name: "Tendencias, Alertas y Mantenimiento", href: "/institution/TrendsDashboard", icon: "📊" },
   ],
 investigador: [
   { name: "Mi Perfil", href: "/researcher/perfil", icon: "👤" },
   { name: "Gestión de Mis Estaciones", href: "/dashboard/researcher", icon: "📡" }, 
   { name: "Generación de Reportes", href: "/researcher/reportes", icon: "📄" },
-  { name: "Tendencias, Alertas y Mantenimiento", href: "/researcher/tendencias", icon: "📊" }
+  { name: "Tendencias, Alertas y Mantenimiento", href: "/researcher/TrendsDashboard", icon: "📊" }
 ],
   ciudadano: [
     { name: "Información Pública", href: "/ciudadano/info", icon: "🌍" },
