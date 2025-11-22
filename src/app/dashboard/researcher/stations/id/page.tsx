@@ -14,11 +14,14 @@ import DateFilter, { DateFilterOption } from "@/components/DateFilter";
 import ChartVariables from '../../../../../components/ChartVariables';
 import ICACard from "@/components/ICACard";
 
+import WeatherVariableSelect from "@/components/WeatherVariableSelector";
+
 export default function stationsInfo({station}:any) {
   
   const [stations, setStation] = useState<Station[]>([]);
   const [search, setSearch] = useState("");
 
+  const [varGrafica, setVarGrafica] = useState("");
   const [filterVariables, setFilterVariables] = useState("all");
   const [variables, setVariables]= useState<Variable[]>([]);
 
@@ -189,8 +192,10 @@ const filteredVariables = variables.filter((u) => {
       sensors: number;
       alerts?: number; */}
 
-          <Subtitle className="text-sky-400">Gráficas </Subtitle>
-      <ChartVariables ></ChartVariables>
+          <Subtitle className="text-sky-400">Gráficas</Subtitle>
+          <WeatherVariableSelect value={varGrafica} onChange={setVarGrafica} />
+
+      <ChartVariables  ></ChartVariables>
       </section>
     </div>
   );
