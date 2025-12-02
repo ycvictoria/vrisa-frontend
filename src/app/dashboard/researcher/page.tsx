@@ -1,97 +1,70 @@
 "use client";
 
-import React from "react";
+import { useEffect, useState } from "react";
+import { getStations } from "@/services/stations";
+import Link from "next/link";
 
-export default function InvestigatorDashboard() {
-  const stations = [
-    {
-      id: 1,
-      name: "Univalle San Fernando",
-      location: "Univalle SF. Edificio 20",
-      status: "Active",
-      alerts: 2,
-      lastUpdate: "2023-10-26 14:15",
-      sensors: 3,
-    },
-    {
-      id: 2,
-      name: "Cañaveralejo",
-      location: "Cali Sur",
-      status: "Active",
-      alerts: 0,
-      lastUpdate: "2023-10-26 14:30",
-      sensors: 5,
-    },
-    {
-      id: 3,
-      name: "La Ermita",
-      location: "La Ermita, CO",
-      status: "Active",
-      alerts: 0,
-      lastUpdate: "2023-10-26 10:00",
-      sensors: 4,
-    },
-  ];
+export default function ResearcherDashboard() {
+  const [stations, setStations] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getStations()
+      .then((data) => setStations(data))
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading)
+    return (
+      <p className="text-center text-gray-600 mt-10 text-lg">
+        Cargando estaciones...
+      </p>
+    );
 
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold mb-2">Tablero de Investigador</h1>
-      <p className="text-gray-600 mb-6">
-        Un resumen de sus estaciones de monitoreo, con indicadores de alertas activas.
-      </p>
+    <div className="p-10 w-full">
+      {/* Título */}
+      <h1 className="text-3xl font-bold text-gray-800 mb-8">
+        Tablero de Investigador
+      </h1>
 
-      {/* BOTONES SUPERIORES */}
-      <div className="flex gap-4 mb-6">
-        <button className="px-4 py-2 rounded bg-red-300 text-red-900">
-          🗑️ Eliminar Estación de la Red
-        </button>
+      {/* Botón agregar */}
+      <Link
+        href="/dashboard/researcher/stations/new"
+        className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg shadow"
+      >
+        <span className="text-xl">＋</span>
+        Agregar nueva estación
+      </Link>
 
-        <button className="px-4 py-2 rounded bg-indigo-500 text-white">
-          🖥️ + Agregar Nueva Estación
-        </button>
-      </div>
+      {/* Si no hay estaciones */}
+      {stations.length === 0 && (
+        <p className="mt-10 text-gray-500 text-lg">
+          No tienes estaciones registradas aún.
+        </p>
+      )}
 
-      <h2 className="text-xl font-semibold mb-4">Mis Estaciones Monitoreadas</h2>
-
-      {/* GRID DE ESTACIONES */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {stations.map((st) => (
+      {/* Lista de estaciones */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mt-8">
+        {stations.map((s) => (
           <div
-            key={st.id}
-            className="border rounded p-4 shadow-sm hover:shadow-md transition"
+            key={s.id}
+            className="p-6 border rounded-xl shadow-md bg-white hover:shadow-lg transition"
           >
-            {/* Checkbox superior */}
-            <div className="flex justify-between items-center mb-2">
-              <input type="checkbox" className="w-4 h-4" />
+            <h2 className="text-xl font-semibold text-gray-700">
+              {s.name}
+            </h2>
 
-              {st.alerts > 0 && (
-                <span className="text-white bg-red-500 px-2 py-1 rounded text-sm">
-                  ⚠ {st.alerts} Alertas
-                </span>
-              )}
-            </div>
+            <p className="text-gray-500 mt-1">
+              ID: <span className="font-mono">{s.id}</span>
+            </p>
 
-            {/* Nombre y ubicación */}
-            <h3 className="text-lg font-semibold">{st.name}</h3>
-            <p className="text-gray-500 text-sm">📍 {st.location}</p>
-
-            {/* Estado */}
-            <div className="mt-2">
-              <span className="text-green-600 bg-green-100 px-2 py-1 rounded text-xs">
-                ✔ {st.status}
-              </span>
-            </div>
-
-            {/* Info adicional */}
-            <div className="text-xs text-gray-500 mt-3">
-              Last Update: {st.lastUpdate} <br />
-              Sensors: {st.sensors}
-            </div>
-
-            {/* Botón de detalles */}
-            <button className="w-full mt-4 border rounded py-1 hover:bg-gray-50 transition">
-              Ver Detalles
-            </button>
+            <Link
+              href={`/dashboard/researcher/stations/${s.id}`}
+              className="mt-4 inline-block text-blue-600 hover:underline font-medium"
+            >
+              Ver detalles →
+            </Link>
           </div>
         ))}
       </div>
