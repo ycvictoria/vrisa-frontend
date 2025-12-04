@@ -8,6 +8,11 @@ import Button from "@/components/Button";
 import { StatsCard } from "@/components/StatsCard";
 import Pagination from "@/components/Pagination";
 
+/**
+ * Pagina: Gestion de Investigadores 
+ * Usa los mocks: /api/mock/institutions y /api/mock/researchers
+ */
+
 // tipos locales 
 type Institution = {
   idInstitution: number;

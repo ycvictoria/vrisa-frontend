@@ -1,77 +1,39 @@
-"use client";
+import Button from "@/components/Button";
+import { Title, Subtitle, Paragraph } from "@/components/Text";
+import Clock from "@/components/Clock";
 
-import { useEffect, useState } from "react";
-import { getStations } from "@/services/stations";
-import Link from "next/link";
-
-export default function ResearcherDashboard() {
-  const [stations, setStations] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    getStations()
-      .then((data) => setStations(data))
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading)
-    return (
-      <p className="text-center text-gray-600 mt-10 text-lg">
-        Cargando estaciones...
-      </p>
-    );
-
+export default function ResearcherPage() {
+    
   return (
-    <div className="p-10 w-full">
-      {/* Título */}
-      <h1 className="text-3xl font-bold text-gray-800 mb-8">
-        Tablero de Investigador
-      </h1>
+    <div className="space-y-3 flex-col gap-4 border shadow-sm p-4 ml-5">
+      <Title>👩🏻‍🔬 Dashboard de Investigador</Title>
+3 conflicting files
+page.tsx
+...rd/admin/stations/researcher/page.tsx
+page.tsx
+src/app/dashboard/researcher/page.tsx
+sidebarItems.tsx
+src/lib/sidebarItems.tsx
+src/app/dashboard/researcher/page.tsx Resolved
 
-      {/* Botón agregar */}
-      <Link
-        href="/dashboard/researcher/stations/new"
-        className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg shadow"
-      >
-        <span className="text-xl">＋</span>
-        Agregar nueva estación
-      </Link>
-
-      {/* Si no hay estaciones */}
-      {stations.length === 0 && (
-        <p className="mt-10 text-gray-500 text-lg">
-          No tienes estaciones registradas aún.
-        </p>
-      )}
-
-      {/* Lista de estaciones */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mt-8">
-        {stations.map((s) => (
-          <div
-            key={s.id}
-            className="p-6 border rounded-xl shadow-md bg-white hover:shadow-lg transition"
-          >
-            <h2 className="text-xl font-semibold text-gray-700">
-              {s.name}
-            </h2>
-
-            <p className="text-gray-500 mt-1">
-              ID: <span className="font-mono">{s.id}</span>
-            </p>
-
-            <Link
-              href={`/dashboard/researcher/stations/${s.id}`}
-              className="mt-4 inline-block text-blue-600 hover:underline font-medium"
-            >
-              Ver detalles →
-            </Link>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
+        <Subtitle>Bienvenido</Subtitle>
+        
+     
+      <ul className="space-y-3 flex-col ap-4  ">
+        <li className="p-4 bg-white rounded-xl  ">
+            <Button>Ver Mis estaciones</Button>
+        </li>
+          <li className="p-4 bg-white rounded-xl  ">
+        
+            <Button>Crear Reportes</Button>
+        </li>
+          <li className="p-4 bg-white rounded-xl   ">
+           
+            <Button>Ver Alertas Criticas y Mantemiento</Button>
+        </li>
+      
+      </ul>
+      <Clock></Clock>
     </div>
   );
 }
