@@ -19,6 +19,7 @@ export const sidebarItems: any = {
     { name: "Investigadores", href: "/institucion/investigadores", icon: "👩‍🔬" },
     { name: "Permisos", href: "/institucion/permisos", icon: "📝" },
   ],
+
   investigador: [
     { name: "Mis estaciones", href: "/researcher/stations", icon: "📊" },
     { name: "Reportes", href: "/researcher/reports", icon: "📈" },

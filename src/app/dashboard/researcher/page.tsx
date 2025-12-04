@@ -7,6 +7,15 @@ export default function ResearcherPage() {
   return (
     <div className="space-y-3 flex-col gap-4 border shadow-sm p-4 ml-5">
       <Title>👩🏻‍🔬 Dashboard de Investigador</Title>
+3 conflicting files
+page.tsx
+...rd/admin/stations/researcher/page.tsx
+page.tsx
+src/app/dashboard/researcher/page.tsx
+sidebarItems.tsx
+src/lib/sidebarItems.tsx
+src/app/dashboard/researcher/page.tsx Resolved
+
         <Subtitle>Bienvenido</Subtitle>
         
      
