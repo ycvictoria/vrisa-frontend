@@ -1,4 +1,11 @@
 export const sidebarItems: any = {
+
+   dev: [
+    { name: "Gestión de Usuarios", href: "/admin/users", icon: "👨🏻‍💻" },
+    { name: "Autorización de Estaciones", href: "/admin/stations", icon: "🖥️" },
+    { name: "Mis estaciones", href: "/researcher/stations", icon: "📊" },
+    { name: "Reportes", href: "/researcher/reports", icon: "📈" },
+  ],
   admin: [
     { name: "Gestión de Usuarios", href: "/admin/users", icon: "👨🏻‍💻" },
     { name: "Autorización de Estaciones", href: "/admin/stations", icon: "🖥️" },
@@ -9,9 +16,12 @@ export const sidebarItems: any = {
     { name: "Mantenimiento", href: "/estacion/mantenimiento", icon: "🛠️" },
   ],
   institucion: [
-    { name: "Investigadores", href: "/institution/investigadores", icon: "👩‍🔬" },
-    { name: "Permisos", href: "/institution/permisos", icon: "📝" },
-    { name: "Tendencias, Alertas y Mantenimiento", href: "/institution/TrendsDashboard", icon: "📊" },
+    { name: "Investigadores", href: "/institucion/investigadores", icon: "👩‍🔬" },
+    { name: "Permisos", href: "/institucion/permisos", icon: "📝" },
+  ],
+  investigador: [
+    { name: "Mis estaciones", href: "/researcher/stations", icon: "📊" },
+    { name: "Reportes", href: "/researcher/reports", icon: "📈" },
   ],
 investigador: [
   { name: "Mi Perfil", href: "/researcher/perfil", icon: "👤" },

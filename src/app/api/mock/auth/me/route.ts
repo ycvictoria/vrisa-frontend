@@ -5,7 +5,7 @@ export async function GET() {
     idUser: 1,
     first_name: "Alice",
     last_name: "Johnson",
-    role: "admin",
+    role: "dev",
     status: "active",
     idLogin: 1,
   });
