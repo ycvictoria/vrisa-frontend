@@ -6,61 +6,57 @@ import { UsersTable } from "@/components/UsersTable";
 import SearchBar from "@/components/SearchBar";
 import DropdownSelect from "@/components/DropdownSelect";
 import Button from "@/components/Button";
+import AddUserDialog from "@/components/AddUserDialog";
 import { Title, Subtitle, Paragraph } from "@/components/Text";
-import { User } from "@/types/User";
+import { User } from "@/types/data_types";
+import { getAllUsers } from "@/services/services";
 
 export default function UsersAdminPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
-
- 
-  //  Filtro combinado
- 
+const [isDialogOpen, setIsDialogOpen] = useState(false);
+const handleUserCreated = (newUser: User) => {
+  setUsers((prev) => [...prev, newUser]);  // Agrega sin recargar
+};
   const filteredUsers = users.filter((u) => {
     const matchesSearch =
-      u.first_name.toLowerCase().includes(search.toLowerCase()) ||
-      u.idUser.toString().includes(search.toLowerCase());
+      u.first_name.toLowerCase().includes(search.toLowerCase())  || 
+      u.last_name.toLowerCase().includes(search.toLowerCase()) ||
+    u.iduser.toString().includes(search.toLowerCase());
 
     const matchesStatus =
-      filterStatus === "all" || u.status === filterStatus;
-
+      filterStatus === "all" || u.account_status === filterStatus;
     return matchesSearch && matchesStatus;
   });
 
-  
-  //  Cargar usuarios mock
- 
-  useEffect(() => {
-    async function loadUsers() {
-      try {
-        const res = await fetch("/api/mock/users");
-        if (res.ok) {
-          const data = await res.json();
-          setUsers(data);
-        }
-      } catch (error) {
-        console.error("Error cargando usuarios:", error);
-      }
+ async function loadUsers() {
+    try {
+      const data = await getAllUsers();
+      setUsers(data);
+    } catch (error) {
+      console.error("Error cargando usuarios:", error);
     }
+  }
 
+  useEffect(() => {
     loadUsers();
   }, []);
-
   
-  // Stats dinámicos
   const stats = [
     { title: "Usuarios totales", value: users.length },
     {
       title: "Usuarios activos",
-      value: users.filter((u) => u.status === "active").length,
+      value: users.filter((u) => u.account_status === "activo").length,
     },
-    { title: "Autorizaciones pendientes", value: 1 },
+    {
+      title: "Autorizaciones pendientes",
+      value: users.filter((u) => u.authorization_status === "pendiente").length,
+    },
   ];
 
   return (
     <div className="space-y-8">
-      {/* Header */}
       <header>
         <Title>👨🏻‍💻 Gestión de Usuarios y Autorizaciones</Title>
         <Paragraph>
@@ -68,24 +64,20 @@ export default function UsersAdminPage() {
         </Paragraph>
       </header>
 
-      {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {stats.map((s, i) => (
           <StatsCard key={i} title={s.title} value={s.value} />
         ))}
       </div>
 
-      {/* Tabla */}
       <section className="space-y-4">
         <div className="flex justify-between items-center">
           <Subtitle>Todos los usuarios</Subtitle>
-          <Button variant="primary" size="md">
+          <Button variant="primary" size="md" onClick={() => setIsDialogOpen(true)}>
             + Agregar Nuevo Usuario
           </Button>
-          
         </div>
 
-        {/* 🔍 Buscador + Filtro */}
         <div className="flex gap-4 justify-between">
           <SearchBar
             placeholder="Buscar por nombre o ID..."
@@ -93,20 +85,27 @@ export default function UsersAdminPage() {
           />
 
           <DropdownSelect
-          
             value={filterStatus}
             onChange={setFilterStatus}
             options={[
               { value: "all", label: "Todos" },
-              { value: "active", label: "Activos" },
-              { value: "inactive", label: "Inactivos" },
+              { value: "activo", label: "Activos" },
+              { value: "inactivo", label: "Inactivos" },
+              { value: "suspendido", label: "Suspendidos" },
             ]}
           />
         </div>
 
-        {/* Tabla filtrada */}
         <UsersTable users={filteredUsers} />
+
+         <AddUserDialog
+        isOpen={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        onUserCreated={handleUserCreated}
+        
+      />
       </section>
+      
     </div>
   );
 }
