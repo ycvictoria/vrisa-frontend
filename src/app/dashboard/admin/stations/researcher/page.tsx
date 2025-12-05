@@ -1,3 +1,5 @@
+import { supabase } from "@/lib/supabase";
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -33,35 +35,42 @@ export default function InstitutionResearchersPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 5;
 
-  // cargar institution 
   useEffect(() => {
-    async function load() {
-      try {
-        const resInst = await fetch("/api/mock/institutions");
-        if (resInst.ok) {
-          const insts = await resInst.json();
-          setInstitution(insts?.[0] ?? null);
-        }
+  async function load() {
+    try {
+      // cargar institución
+      const { data: instData, error: instError } = await supabase
+        .from("institutions")
+        .select("*")
+        .limit(1);
 
-        const res = await fetch("/api/mock/researchers");
-        if (res.ok) {
-          const data = await res.json();
-          // normalizamos algunos campos para la tabla
-          const normalized: Researcher[] = data.map((r: any) => ({
-            idUser: r.idUser,
-            name: r.name,
-            institution: r.institution,
-            state: r.state ?? "active",
-            date_issue: r.date_issue ?? "2023-01-01",
-          }));
-          setResearchers(normalized);
-        }
-      } catch (err) {
-        console.error("Error cargando datos:", err);
-      }
+      if (instError) console.error("Error instituciones:", instError);
+      setInstitution(instData?.[0] ?? null);
+
+      // cargar investigadores
+      const { data: resData, error: resError } = await supabase
+        .from("researchers")
+        .select("*");
+
+      if (resError) console.error("Error investigadores:", resError);
+
+      const normalized = resData?.map((r: any) => ({
+        idUser: r.idUser,
+        name: r.name,
+        institution: r.institution,
+        state: r.state ?? "active",
+        date_issue: r.date_issue ?? "2023-01-01",
+      })) ?? [];
+
+      setResearchers(normalized);
+
+    } catch (error) {
+      console.error("Error general:", error);
     }
-    load();
-  }, []);
+  }
+
+  load();
+}, []);
 
   // filtro y busqueda
   const filtered = researchers.filter((r) => {
