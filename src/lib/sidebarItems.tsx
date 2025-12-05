@@ -1,11 +1,4 @@
 export const sidebarItems: any = {
-
-   dev: [
-    { name: "Gestión de Usuarios", href: "/admin/users", icon: "👨🏻‍💻" },
-    { name: "Autorización de Estaciones", href: "/admin/stations", icon: "🖥️" },
-    { name: "Mis estaciones", href: "/researcher/stations", icon: "📊" },
-    { name: "Reportes", href: "/researcher/reports", icon: "📈" },
-  ],
   admin: [
     { name: "Gestión de Usuarios", href: "/admin/users", icon: "👨🏻‍💻" },
     { name: "Autorización de Estaciones", href: "/admin/stations", icon: "🖥️" },
@@ -19,8 +12,8 @@ export const sidebarItems: any = {
     { name: "Permisos", href: "/institucion/permisos", icon: "📝" },
   ],
   investigador: [
-    { name: "Mis estaciones", href: "/researcher/stations", icon: "📊" },
-    { name: "Reportes", href: "/researcher/reports", icon: "📈" },
+    { name: "Datos", href: "/investigador/datos", icon: "📊" },
+    { name: "Reportes", href: "/investigador/reportes", icon: "📈" },
   ],
   ciudadano: [
     { name: "Información Pública", href: "/ciudadano/info", icon: "🌍" },

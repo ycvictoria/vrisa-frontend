@@ -24,8 +24,9 @@ export function UsersTable({ users }: any) {
             <th className="p-3">Nombre</th>
             <th className="p-3">Email</th>
             <th className="p-3">Rol</th>
-            <th className="p-3">Status</th>
-            <th className="p-3">Último Login</th>
+            <th className="p-3">Status Autorización</th>
+            <th className="p-3">Acceso</th>
+            <th className="p-3">Día registro</th>
             <th className="p-3">Acciones</th>
           </tr>
         </thead>
@@ -40,12 +41,13 @@ export function UsersTable({ users }: any) {
           ) : (
           paginatedUsers.map((u: any, i: number) => (
             <tr key={i} className="border-t text-gray-600 ">
-              <td className="p-3">{u.idUser}</td>
+              <td className="p-3">{u.iduser}</td>
               <td className="p-3">{u.first_name +" "+ u.last_name}</td>
               <td className="p-3">{u.email}</td>
               <td className="p-3"><RoleBadge role={u.role} /></td>
-              <td className="p-3">{u.status}</td>
-              <td className="p-3">{u.lastLogin}</td>
+              <td className="p-3">{u.authorization_status}</td>
+              <td className="p-3">{u.account_status}</td>
+              <td className="p-3">{u.registration_date}</td>
               <td className="p-3 space-x-2">
                  <Button variant="primary" size="sm">
                            Autorizar
