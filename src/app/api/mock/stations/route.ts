@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
+import { Station } from "@/types/data_types";// Ajustado correctamente
 
-let stations = [
+// Datos mock iniciales
+let stations: Station[] = [
   {
     idStation: 1,
     name: "Estación Norte",
@@ -29,14 +31,16 @@ let stations = [
   },
 ];
 
+// GET → retorna todas las estaciones
 export async function GET() {
   return NextResponse.json(stations);
 }
 
+// POST → crea una nueva estación
 export async function POST(req: Request) {
   const body = await req.json();
 
-  const newStation = {
+  const newStation: Station = {
     idStation: stations.length + 1,
     name: body.name,
     status: "active",
@@ -54,3 +58,4 @@ export async function POST(req: Request) {
 
   return NextResponse.json(newStation, { status: 201 });
 }
+

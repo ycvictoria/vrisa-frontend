@@ -25,3 +25,4 @@ export interface Station {
   idTechnician: number;
   ubication: Ubication;
 }
+
