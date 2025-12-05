@@ -251,13 +251,3 @@ export interface AuditUserDataChangesLog {
   notes: string;
 }
 
-export interface Variable {
-  idVariable: string | number;
-  name: string;
-  category: string;
-  description: string;
-  measurement_unit: string;
-  range_min: number;
-  range_max: number;
-  value: number;
-}
