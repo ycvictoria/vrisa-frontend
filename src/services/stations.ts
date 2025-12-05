@@ -1,5 +1,3 @@
-// src/services/stations.ts
-
 export async function createStation(data) {
   const res = await fetch("/api/mock/stations", {
     method: "POST",
@@ -14,4 +12,3 @@ export async function getStations() {
   const res = await fetch("/api/mock/stations");
   return await res.json();
 }
-
