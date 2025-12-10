@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { supabase } from "../../../lib/supabaseClient";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -11,10 +12,26 @@ export default function RegisterPage() {
   const [color2, setColor2] = useState("");
   const [color3, setColor3] = useState("");
   const [logo, setLogo] = useState<File | null>(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [msg, setMsg] = useState("");
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setLogo(e.target.files[0]);
+    }
+  };
+
+  const handleRegister = async () => {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+
+    if (error) {
+      setMsg(error.message);
+    } else {
+      router.push("/auth/login");
     }
   };
 
@@ -23,7 +40,6 @@ export default function RegisterPage() {
       {/* Panel izquierdo con formulario */}
       <div className="w-1/2 bg-white p-12 flex flex-col justify-center">
         
-        {/* Header azul con VRISA */}
         <div className="w-full bg-[#3B4B8C] text-white py-4 rounded-md mb-10 text-center text-3xl font-bold">
           VRISA
         </div>
@@ -67,6 +83,7 @@ export default function RegisterPage() {
               type="email"
               className="w-full p-3 border rounded-lg"
               placeholder="example.email@gmail.com"
+              onChange={(e) => setEmail(e.target.value)}
             />
           </div>
 
@@ -144,6 +161,7 @@ export default function RegisterPage() {
               type="password"
               className="w-full p-3 border rounded-lg"
               placeholder="Enter at least 8+ characters"
+              onChange={(e) => setPassword(e.target.value)}
             />
           </div>
 
@@ -158,14 +176,16 @@ export default function RegisterPage() {
             </button>
             <button
               type="button"
+              onClick={handleRegister} // 🔹 Aquí llamamos a Supabase
               className="flex-1 bg-[#3B4B8C] hover:bg-[#2d3a6e] text-white py-3 rounded-lg font-semibold transition"
             >
               Crear Cuenta
             </button>
           </div>
+
+          {msg && <p className="text-red-500 mt-2">{msg}</p>}
         </form>
 
-        {/* Texto obligatorio */}
         <p className="text-gray-600 text-sm mt-6">
           <strong>Después de crear la cuenta,</strong> se mandará el registro
           para su autorización.{" "}
@@ -173,7 +193,7 @@ export default function RegisterPage() {
         </p>
       </div>
 
-      {/* Panel derecho (diseño igual al login, azul/blanco/negro) */}
+      {/* Panel derecho */}
       <div className="w-1/2 bg-[#3B4B8C] text-white flex flex-col items-center justify-center p-12">
         <h1 className="text-5xl font-bold mb-4">VRISA</h1>
         <p className="text-lg text-gray-200 text-center">
