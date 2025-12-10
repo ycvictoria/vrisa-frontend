@@ -5,6 +5,7 @@ export const sidebarItems: any = {
     { name: "Autorización de Estaciones", href: "/admin/stations", icon: "🖥️" },
     { name: "Mis estaciones", href: "/researcher/stations", icon: "📊" },
     { name: "Reportes", href: "/researcher/reports", icon: "📈" },
+    { name: "Permisos de Investigadores", href: "/admin/stations/researcher", icon: "📝" },
   ],
   admin: [
     { name: "Gestión de Usuarios", href: "/admin/users", icon: "👨🏻‍💻" },
