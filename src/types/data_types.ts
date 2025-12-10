@@ -102,7 +102,7 @@ export interface DocumentID {
 // ======================================================
 
 export interface Station {
-  idStation: number;
+  idstation: number;
   name: string;
   status: StationStatus;
   opening_date: string;
