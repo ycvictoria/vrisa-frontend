@@ -54,11 +54,9 @@ export default function StationsAdminPage() {
     { title: "Estaciones totales", value: stations.length },
     {
       title: "Estaciones activas",
-      value: stations.filter((u) => u.status === "active").length,
+      value: stations.filter((u) => u.status === "activa").length,
     },
-    { title: "Activaciones mantenimiento",  
-        value: stations.filter((u) => u.status === "maintenance").length,
-     },
+   
   ];
 
   return (

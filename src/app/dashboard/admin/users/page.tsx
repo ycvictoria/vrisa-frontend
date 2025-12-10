@@ -9,7 +9,7 @@ import Button from "@/components/Button";
 import AddUserDialog from "@/components/AddUserDialog";
 import { Title, Subtitle, Paragraph } from "@/components/Text";
 import { User } from "@/types/data_types";
-import { getAllUsers } from "@/services/services";
+import { getAllUsers , authorizeUser,rejectUser,activateUser,deactivateUser} from "@/services/services";
 
 export default function UsersAdminPage() {
   const [users, setUsers] = useState<User[]>([]);
@@ -19,16 +19,28 @@ const [isDialogOpen, setIsDialogOpen] = useState(false);
 const handleUserCreated = (newUser: User) => {
   setUsers((prev) => [...prev, newUser]);  // Agrega sin recargar
 };
-  const filteredUsers = users.filter((u) => {
-    const matchesSearch =
-      u.first_name.toLowerCase().includes(search.toLowerCase())  || 
-      u.last_name.toLowerCase().includes(search.toLowerCase()) ||
-    u.iduser.toString().includes(search.toLowerCase());
 
-    const matchesStatus =
-      filterStatus === "all" || u.account_status === filterStatus;
-    return matchesSearch && matchesStatus;
-  });
+const safeUsers = Array.isArray(users)
+  ? users.filter((u) => u && typeof u === "object")
+  : [];
+const filteredUsers = (safeUsers ?? []).filter((u) => {
+  if (!u) return false; // evita undefined
+
+  const firstName = u.first_name ?? "";
+  const lastName  = u.last_name ?? "";
+  const id        = String(u.iduser ?? "");
+
+  const matchesSearch =
+    firstName.toLowerCase().includes(search.toLowerCase()) ||
+    lastName.toLowerCase().includes(search.toLowerCase()) ||
+    id.includes(search.toLowerCase());
+
+  const matchesStatus =
+    filterStatus === "all" || u.account_status === filterStatus;
+
+  return matchesSearch && matchesStatus;
+});
+
 
  async function loadUsers() {
     try {
@@ -42,7 +54,31 @@ const handleUserCreated = (newUser: User) => {
   useEffect(() => {
     loadUsers();
   }, []);
-  
+
+  async function handleUserUpdate(action: string, id: number) {
+  try {
+    switch (action) {
+      case "authorize":
+        await authorizeUser(id);
+        break;
+      case "reject":
+        await rejectUser(id);
+        break;
+      case "activate":
+        await activateUser(id);
+        break;
+      case "deactivate":
+        await deactivateUser(id);
+        break;
+    }
+
+    // refrescar usuarios después de actualizar
+    loadUsers();
+  } catch (err) {
+    console.error("Error actualizando usuario:", err);
+  }
+}
+
   const stats = [
     { title: "Usuarios totales", value: users.length },
     {
@@ -54,6 +90,7 @@ const handleUserCreated = (newUser: User) => {
       value: users.filter((u) => u.authorization_status === "pendiente").length,
     },
   ];
+  
 
   return (
     <div className="space-y-8">
@@ -91,18 +128,18 @@ const handleUserCreated = (newUser: User) => {
               { value: "all", label: "Todos" },
               { value: "activo", label: "Activos" },
               { value: "inactivo", label: "Inactivos" },
-              { value: "suspendido", label: "Suspendidos" },
             ]}
           />
         </div>
 
-        <UsersTable users={filteredUsers} />
+        <UsersTable users={filteredUsers}  onUpdate={handleUserUpdate} />
 
          <AddUserDialog
         isOpen={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
-        onUserCreated={handleUserCreated}
         
+        onUserCreated={handleUserCreated}
+       
       />
       </section>
       
