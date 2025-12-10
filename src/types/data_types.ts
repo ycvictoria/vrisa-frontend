@@ -8,6 +8,18 @@ export interface User {
   last_access?: string | null;
 }
 
+export interface Researcher {
+  id?: number;
+  first_name?: string | null;
+  last_name?: string | null;
+  name?: string; // <- añadido
+  role?: string;
+  status?: string;
+  authorization_status?: string;
+  created_at?: string;
+  registration_date?: string;
+}
+
 export interface Ubication {
   latitude: number;
   longitude: number;
@@ -15,6 +27,7 @@ export interface Ubication {
 }
 
 export type StationStatus = "active" | "inactive" | "maintenance";
+
 
 export interface Station {
   idStation: number;
