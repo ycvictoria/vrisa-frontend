@@ -25,7 +25,7 @@ export const sidebarItems: any = {
     { name: "Mis estaciones", href: "/researcher/stations", icon: "📊" },
     { name: "Reportes", href: "/researcher/reports", icon: "📈" },
   ],
-investigador: [
+  investigado: [
   { name: "Mi Perfil", href: "/researcher/perfil", icon: "👤" },
   { name: "Gestión de Mis Estaciones", href: "/dashboard/researcher", icon: "📡" }, 
   { name: "Generación de Reportes", href: "/researcher/reportes", icon: "📄" },

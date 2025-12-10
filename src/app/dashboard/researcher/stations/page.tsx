@@ -8,16 +8,14 @@ import DropdownSelect from "@/components/DropdownSelect";
 import Button from "@/components/Button";
 import { Title, Subtitle, Paragraph } from "@/components/Text";
 import { Station } from "@/types/data_types";
-import { StationCard } from '../../../../components/StationCard';
+import { StationCard } from "../../../../components/StationCard";
 
 export default function MonitoreStations() {
   const [stations, setStations] = useState<Station[]>([]);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
 
- 
-  //  Filtro combinado
- 
+  // 🔍 Filtro combinado (búsqueda + estado)
   const filteredStations = stations.filter((u) => {
     const matchesSearch =
       u.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -29,11 +27,9 @@ export default function MonitoreStations() {
     return matchesSearch && matchesStatus;
   });
 
-  
-  //  Cargar usuarios mock
- 
+  // 🚀 Cargar estaciones mock
   useEffect(() => {
-    async function loadUsers() {
+    async function loadStations() {
       try {
         const res = await fetch("/api/mock/stations");
         if (res.ok) {
@@ -45,24 +41,22 @@ export default function MonitoreStations() {
       }
     }
 
-    loadUsers();
+    loadStations();
   }, []);
 
-  
- 
   return (
     <div className="space-y-8">
-      {/* Header */}
+      {/* 🧭 Header */}
       <header>
-        <Title>👨🏻‍💻 Gestión de Estaciones </Title>
+        <Title>👨🏻‍💻 Gestión de Estaciones</Title>
         <Paragraph>
           Para ver información sobre las estaciones monitoreadas.
         </Paragraph>
       </header>
 
-      {/* Tabla */}
+      {/* ⚙️ Controles superiores */}
       <section className="space-y-4">
-        <div className="flex justify-end gap-4 ">
+        <div className="flex justify-end gap-4">
           <Button variant="primary" size="md">
             Eliminar Estación
           </Button>
@@ -72,16 +66,15 @@ export default function MonitoreStations() {
         </div>
 
         <Subtitle>Mis estaciones monitoreadas</Subtitle>
+
         {/* 🔍 Buscador + Filtro */}
         <div className="flex gap-4 justify-between mb-5 mt-2">
-          
           <SearchBar
             placeholder="Buscar por nombre o ID..."
             onSearch={setSearch}
           />
 
           <DropdownSelect
-          
             value={filterStatus}
             onChange={setFilterStatus}
             options={[
@@ -91,23 +84,21 @@ export default function MonitoreStations() {
             ]}
           />
         </div>
-        
-     {/* Stats  
-      name: string;
-      location: string;
-      status: "active" | "inactive" | "maintenance";
-      lastUpdate: string;
-      sensors: number;
-      alerts?: number; */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {filteredStations.map((s, i) => (
-          <StationCard name= {s.name} location={s.ubication.address} status={s.status}
-          lastUpdate={s.opening_date} sensors={0} alerts={2}
-          ></StationCard>
-        ))}
-      </div>
 
-      
+        {/* 📊 Tarjetas de estaciones */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {filteredStations.map((s, i) => (
+            <StationCard
+              key={s.idStation ?? i} // ✅ Se agregó clave única
+              name={s.name}
+              location={s.ubication.address}
+              status={s.status}
+              lastUpdate={s.opening_date}
+              sensors={0}
+              alerts={2}
+            />
+          ))}
+        </div>
       </section>
     </div>
   );
