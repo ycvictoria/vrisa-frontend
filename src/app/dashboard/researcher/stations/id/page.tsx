@@ -1,201 +1,184 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { StatsCard } from "@/components/StatsCard";
-import { UsersTable } from "@/components/UsersTable";
-import SearchBar from "@/components/SearchBar";
-import { Title, Subtitle, Paragraph, SmallText } from "@/components/Text";
-import { Station, Variable } from "@/types/data_types";
+import { useParams } from "next/navigation";
+import { supabase } from "@/lib/supabaseClient"; // 👈 Usa tu cliente real
 
-import { VariableCard } from "@/components/VariableCard";
-import { MapPin } from "lucide-react";
-import DateFilter, { DateFilterOption } from "@/components/DateFilter";
+export default function StationInfo() {
+  const params = useParams();
+  const idStation = Number(params.id);
 
-import ChartVariables from '../../../../../components/ChartVariables';
-import ICACard from "@/components/ICACard";
-
-import WeatherVariableSelect from "@/components/WeatherVariableSelector";
-
-export default function stationsInfo({station}:any) {
-  
-  const [stations, setStation] = useState<Station[]>([]);
+  const [station, setStation] = useState<any>(null);
+  const [ubication, setUbication] = useState<any>(null);
+  const [sensors, setSensors] = useState<any[]>([]);
+  const [variables, setVariables] = useState<any[]>([]);
   const [search, setSearch] = useState("");
 
-  const [varGrafica, setVarGrafica] = useState("");
-  const [filterVariables, setFilterVariables] = useState("all");
-  const [variables, setVariables]= useState<Variable[]>([]);
-
-  const [filterDate, setFilterDate] = useState<DateFilterOption>("today");
- 
-  //  Filtro combinado
-const filteredVariables = variables.filter((u) => {
-    const matchesSearch =
-      u.name.toLowerCase().includes(search.toLowerCase()) ||
-      u.description.toString().includes(search.toLowerCase());
-   
-    return matchesSearch;
-  });
-  const [stationSelected, setStationSelected]= useState<Station>();
-
-  //  Cargar usuarios mock
-
-    function getLevel() {
-    if (stationSelected?.status === "active") 
-      return "text-green-600 bg-green-100";
-    if (stationSelected?.status === "maintenance") 
-      return "text-yellow-600 bg-yellow-100";
-    
-     else return "text-gray-600 bg-gray-100";
-    };
-    
-  const statusStation = getLevel();
-    
-  
-
+  // ============================================================
+  //  1️⃣ CARGAR ESTACIÓN + UBICACIÓN + SENSORES + VARIABLES
+  // ============================================================
   useEffect(() => {
-  async function loadUsers() {
-    try {
-      const res = await fetch("/api/mock/stations");
-      if (res.ok) {
-        const data = await res.json();
-        console.log("stations cargadas:", data);
+    async function loadData() {
+      try {
+        // Obtener estación
+        const { data: st, error: err1 } = await supabase
+          .from("station")
+          .select("*")
+          .eq("idstation", idStation)
+          .single();
 
-        setStation(data);
-        setStationSelected(data[0]); // 👈 ARREGLADO
-      }
+        if (err1) throw err1;
+        setStation(st);
 
-      const resVar = await fetch("/api/mock/variables");
-      if (resVar.ok) {
-        const dataVar = await resVar.json();
-        console.log("Variables cargadas:", dataVar);
-        console.log("Variables cargadas:", JSON.stringify(dataVar, null, 2));
-        setVariables(dataVar);
+        // Obtener ubicación
+        const { data: ub, error: errUb } = await supabase
+          .from("ubication")
+          .select("*")
+          .eq("idstation", idStation)
+          .single();
+
+        if (errUb) throw errUb;
+        setUbication(ub);
+
+        // Obtener sensores de la estación
+        const { data: sns, error: err2 } = await supabase
+          .from("sensor")
+          .select("*")
+          .eq("idstation", idStation);
+
+        if (err2) throw err2;
+        setSensors(sns);
+
+        // Obtener variables desde measurement → variable
+        const { data: vars, error: err3 } = await supabase
+          .from("variable")
+          .select(`
+            idvariable,
+            name,
+            category,
+            description,
+            measurement_unit,
+            measurement:measurement(idmeasurement)
+          `);
+
+        if (err3) throw err3;
+
+        // Filtrar variables que realmente están en la estación
+        const varsInStation = vars.filter(v =>
+          v.measurement.some((m: any) =>
+            sensors.map(s => s.idsensor).includes(m.idsensor)
+          )
+        );
+
+        setVariables(varsInStation);
+
+      } catch (error) {
+        console.error("Error cargando estación:", error);
       }
-    } catch (error) {
-      console.error("Error cargando estación o variable:", error);
+    }
+
+    loadData();
+  }, [idStation]);
+
+  // ============================================================
+  //  2️⃣ FILTRO DE VARIABLES
+  // ============================================================
+  const filteredVariables = variables.filter(v =>
+    v.name.toLowerCase().includes(search.toLowerCase()) ||
+    v.description.toLowerCase().includes(search.toLowerCase())
+  );
+
+  // ============================================================
+  //  3️⃣ BADGE DE ESTADO
+  // ============================================================
+  function getStatusColor(status: string) {
+    switch (status) {
+      case "active":
+        return "bg-green-100 text-green-700";
+      case "inactive":
+        return "bg-gray-200 text-gray-600";
+      case "maintenance":
+        return "bg-yellow-100 text-yellow-700";
+      default:
+        return "bg-gray-100 text-gray-600";
     }
   }
 
-  loadUsers();
-}, []);
-
-
-  
- 
   return (
-    <div className="space-y-8 ml-2">
-      {/* Header */}
-      <header className="">
-        <Title className="text-3xl">👨🏻‍💻 Estación {stationSelected?.name} </Title>
-        <div className="flex-col justify-start gap-4 ">
+    <div className="space-y-8 ml-4 mt-4 text-gray-700">
+      {/* ==========================================
+          ENCABEZADO DE ESTACIÓN
+      ============================================ */}
+      <header className="space-y-2">
+        <h1 className="text-3xl font-semibold">
+          Estación {station?.name}
+        </h1>
 
-      <p className="text-md text-gray-600 flex items-center gap-1 mt-1">
-        <MapPin size={20} className="text-gray-400" /> Ubicación:  {stationSelected?.ubication.address}
-      </p>
-           
-          <div className="flex flex-row justify-start gap-8 items-center">
-          <Paragraph>
-          Latitud: {stationSelected?.ubication.latitude}
-        </Paragraph>
-          <Paragraph>
-          Longitude: {stationSelected?.ubication.longitude}
-        </Paragraph>
-
+        {ubication && (
+          <div className="text-gray-500">
+            <p>{ubication.address}</p>
+            <p>Lat: {ubication.latitude}</p>
+            <p>Long: {ubication.longitude}</p>
           </div>
-        <Paragraph>Lider Técnico: {stationSelected?.opening_date}</Paragraph>
-      <div className="flex flex-row justify-start gap-4 mt-2 ">
-        <Paragraph>Status: </Paragraph>
-        <span
-          className={`px-3 py-1 text-sm rounded-full font-medium ${statusStation}`}
-        > {stationSelected?.status }</span>
-        
-      </div>
-        
-       
-        
-        </div>
+        )}
 
-       
+        <span
+          className={`px-3 py-1 rounded-full text-sm ${getStatusColor(
+            station?.status
+          )}`}
+        >
+          {station?.status ?? "desconocido"}
+        </span>
       </header>
 
-      {/* Tabla */}
-      <section className="space-y-4">
-        {/*
-        <ICACard
-      contaminant="PM2.5"
-      value={100}
-      ica={20}
-    />*/}
-            <SearchBar
-            placeholder="Buscar por nombre o ID..."
-            onSearch={setSearch}
-          />
-
-
-
-        <div className="flex-row justify-end gap-4 ">
-
-          <Subtitle className="text-sky-400 ">Variables Meterológicas del día</Subtitle>
-          
-       
-         <div className="flex gap-4 justify-between mb-5 mt-2">
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-  {filteredVariables
-    .filter((v) => v.category === "Meteorológica")
-    .map((v) => (
-      <VariableCard
-        key={v.idVariable}
-        name={v.name}
-        category={v.category}
-        description={v.description}
-        measurement_unit={v.measurement_unit}
-        range_min={v.range_min}
-        range_max={v.range_max}
-        value={100}
+      {/* ==========================================
+          BUSCADOR DE VARIABLES
+      ============================================ */}
+      <input
+        type="text"
+        placeholder="Buscar variable..."
+        className="border px-3 py-2 rounded-md w-full max-w-md"
+        onChange={(e) => setSearch(e.target.value)}
       />
-    ))}
-</div>
-        </div>
-        </div>
 
-         <div className="flex-row justify-end gap-4 ">
-         
-          <Subtitle className="text-sky-400">Contaminantes</Subtitle>
-       
-         <div className="flex gap-4 justify-between mb-5 mt-2">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-  {filteredVariables
-    .filter((v) => v.category !== "Meteorológica")
-    .map((v) => (
-      <VariableCard
-        key={v.idVariable}
-        name={v.name}
-        category={v.category}
-        description={v.description}
-        measurement_unit={v.measurement_unit}
-        range_min={v.range_min}
-        range_max={v.range_max}
-        value={100}
-      />
-    ))}
-</div>
-        </div>
-        </div>
-      
-       
-        
-     {/* Stats  
-      name: string;
-      location: string;
-      status: "active" | "inactive" | "maintenance";
-      lastUpdate: string;
-      sensors: number;
-      alerts?: number; */}
+      {/* ==========================================
+          SECCIÓN DE SENSORES
+      ============================================ */}
+      <section>
+        <h2 className="text-xl font-semibold mb-3">Sensores Instalados</h2>
 
-          <Subtitle className="text-sky-400">Gráficas</Subtitle>
-          <WeatherVariableSelect value={varGrafica} onChange={setVarGrafica} />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {sensors.map((s) => (
+            <div key={s.idsensor} className="border rounded-xl p-4 shadow-sm">
+              <p className="font-bold">{s.type}</p>
+              <p className="text-gray-500">{s.brand} — {s.model}</p>
+              <p className="text-sm">Estado: {s.status}</p>
+              <p className="text-sm">Instalado: {s.installation_date}</p>
+            </div>
+          ))}
+        </div>
+      </section>
 
-      <ChartVariables  ></ChartVariables>
+      {/* ==========================================
+          VARIABLES ASOCIADAS
+      ============================================ */}
+      <section>
+        <h2 className="text-xl font-semibold mt-6">Variables Medidas</h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
+          {filteredVariables.map((v) => (
+            <div key={v.idvariable} className="p-4 border rounded-xl shadow-sm">
+              <h3 className="font-bold text-sky-700">{v.name}</h3>
+              <p className="text-gray-600 text-sm">{v.description}</p>
+              <p className="text-sm mt-1">
+                Unidad: <strong>{v.measurement_unit}</strong>
+              </p>
+              <p className="text-xs text-gray-400">
+                Categoría: {v.category}
+              </p>
+            </div>
+          ))}
+        </div>
       </section>
     </div>
   );
