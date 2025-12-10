@@ -18,20 +18,21 @@ export default function ResearchersPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
-  // Cargar investigadores
+  // ✅ Cargar investigadores desde la API
   async function loadResearchers() {
     const res = await fetch("/api/mock/researchers");
     const data = await res.json();
 
-    // Normalizar campos para evitar null/undefined
-    const normalized = data.map((u: any) => ({
-      id: u.iduser ?? u.id ?? 0,
-      name:
-        `${u.first_name ?? ""} ${u.last_name ?? ""}`.trim() || "Sin nombre",
+    // ✅ El backend ya devuelve name completo
+    const normalized = (Array.isArray(data) ? data : []).map((u: any) => ({
+      id: u.id ?? u.iduser ?? 0,
+      name: u.name ?? "Sin nombre",
       role: u.role ?? "",
-      status: u.authorization_status ?? u.status ?? "pendiente",
-      created_at: u.registration_date ?? u.created_at ?? "",
+      status: u.status ?? "pendiente",
+      created_at: u.created_at ?? "",
     }));
+
+    console.log("✅ Normalizados en frontend:", normalized);
 
     setResearchers(normalized);
     setFiltered(normalized);
@@ -41,7 +42,7 @@ export default function ResearchersPage() {
     loadResearchers();
   }, []);
 
-  // Guardar o actualizar investigador
+  // ✅ Guardar o actualizar investigador
   async function handleSave() {
     const method = editing ? "PUT" : "POST";
     const body = editing
@@ -62,7 +63,7 @@ export default function ResearchersPage() {
     setNewResearcher({ first_name: "", last_name: "", role: "researcher" });
   }
 
-  // Eliminar investigador
+  // ✅ Eliminar investigador
   async function handleDelete(id: number) {
     if (!confirm("¿Seguro que deseas eliminar este investigador?")) return;
 
@@ -75,7 +76,7 @@ export default function ResearchersPage() {
     await loadResearchers();
   }
 
-  // Editar investigador
+  // ✅ Editar investigador
   function handleEdit(user: any) {
     setEditing(user);
     const [first, last] = (user.name ?? "").split(" ");
@@ -87,7 +88,7 @@ export default function ResearchersPage() {
     setOpenModal(true);
   }
 
-  // Filtrado por búsqueda
+  // ✅ Buscar por nombre o rol
   function handleSearch(query: string) {
     const lower = query.toLowerCase();
     const filteredList = researchers.filter(
@@ -99,12 +100,12 @@ export default function ResearchersPage() {
     setCurrentPage(1);
   }
 
-  // Paginación
+  // ✅ Paginación
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginated = filtered.slice(startIndex, startIndex + itemsPerPage);
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
 
-  // Contadores
+  // ✅ Contadores
   const total = researchers.length;
   const activos = researchers.filter((r) => r.status === "aprobado").length;
   const inactivos = total - activos;
@@ -118,11 +119,11 @@ export default function ResearchersPage() {
           <p className="text-3xl font-bold text-gray-700">{total}</p>
         </div>
         <div className="bg-white shadow-md rounded-xl p-5 text-center">
-          <p className="text-gray-500 font-medium">Investigadores Activos</p>
+          <p className="text-gray-500 font-medium">Activos</p>
           <p className="text-3xl font-bold text-green-600">{activos}</p>
         </div>
         <div className="bg-white shadow-md rounded-xl p-5 text-center">
-          <p className="text-gray-500 font-medium">Investigadores Inactivos</p>
+          <p className="text-gray-500 font-medium">Inactivos</p>
           <p className="text-3xl font-bold text-red-500">{inactivos}</p>
         </div>
       </div>
@@ -159,19 +160,13 @@ export default function ResearchersPage() {
           <tbody>
             {paginated.length === 0 ? (
               <tr>
-                <td
-                  colSpan={5}
-                  className="text-center py-6 text-gray-500 italic"
-                >
+                <td colSpan={5} className="text-center py-6 text-gray-500 italic">
                   No hay investigadores para mostrar.
                 </td>
               </tr>
             ) : (
               paginated.map((r) => (
-                <tr
-                  key={r.id}
-                  className="border-t hover:bg-gray-50 transition"
-                >
+                <tr key={r.id} className="border-t hover:bg-gray-50 transition">
                   <td className="py-3 px-4 font-medium text-gray-800">
                     {r.name}
                   </td>
@@ -233,10 +228,7 @@ export default function ResearchersPage() {
               placeholder="Nombre"
               value={newResearcher.first_name}
               onChange={(e) =>
-                setNewResearcher({
-                  ...newResearcher,
-                  first_name: e.target.value,
-                })
+                setNewResearcher({ ...newResearcher, first_name: e.target.value })
               }
               className="w-full border border-gray-300 rounded px-3 py-2 mb-3 focus:ring-2 focus:ring-blue-400 outline-none"
             />
@@ -245,20 +237,14 @@ export default function ResearchersPage() {
               placeholder="Apellido"
               value={newResearcher.last_name}
               onChange={(e) =>
-                setNewResearcher({
-                  ...newResearcher,
-                  last_name: e.target.value,
-                })
+                setNewResearcher({ ...newResearcher, last_name: e.target.value })
               }
               className="w-full border border-gray-300 rounded px-3 py-2 mb-3 focus:ring-2 focus:ring-blue-400 outline-none"
             />
             <select
               value={newResearcher.role}
               onChange={(e) =>
-                setNewResearcher({
-                  ...newResearcher,
-                  role: e.target.value,
-                })
+                setNewResearcher({ ...newResearcher, role: e.target.value })
               }
               className="w-full border border-gray-300 rounded px-3 py-2 mb-4 focus:ring-2 focus:ring-blue-400 outline-none"
             >
@@ -286,3 +272,4 @@ export default function ResearchersPage() {
     </div>
   );
 }
+
