@@ -1,16 +1,19 @@
-
 "use client";
+
+import { useEffect, useState } from "react";
 import Button from "@/components/Button";
-import { Paragraph, Subtitle, Title } from "@/components/Text";
-import { useState } from "react";
+import { Title, Subtitle, Paragraph, SmallText } from "@/components/Text";
+
+import LineChart from "@/components/LineChart";
+
+import {
+  getVariablesGroupedByStation,
+  getAllStations,
+  getStationReport,
+} from "@/services/services";
 
 interface Estacion {
-  id: number;
-  name: string;
-}
-
-interface Parametro {
-  id: string;
+  idstation: number;
   name: string;
 }
 
@@ -22,145 +25,171 @@ interface Registro {
   unidad: string;
 }
 
-const estaciones: Estacion[] = [
-  { id: 1, name: "Estación Central A" },
-  { id: 2, name: "Estación Urbana B" },
-  { id: 3, name: "Estación Industrial C" },
-  { id: 4, name: "Estación Rural D" },
-  { id: 5, name: "Estación Costera E" },
-  { id: 6, name: "Estación Forestal F" },
-];
-
-const parametrosContaminants: Parametro[] = [
-  { id: "pm25", name: "PM2.5" },
-  { id: "pm10", name: "PM10" },
-  { id: "co", name: "Monóxido de Carbono (CO)" },
-  { id: "so2", name: "Sulfur Dioxide (SO2)" },
-  { id: "o3", name: "Ozono (O3)" },
-  { id: "no2", name: "Nitrogen Dioxide (NO2)" }
-];
-const meteorologicParams: Parametro[] = [
-  { id: "aqi", name: "Air Quality Index (AQI)" },
-  { id: "temperatura", name: "Temperatura" },
-  { id: "humedad", name: "Humedad" },
-  { id: "presion", name: "Presión atmosférica" },
-  { id: "direccionViento", name: "Dirección viento" },
-  { id: "velViento", name: "Velocidad Viento" }
-];
-const selectTime: Parametro[] = [
-  { id: "hoy", name: "Hoy" },
-  { id: "semana", name: "Esta semana" },
-  { id: "mes", name: "Este mes" }
-];
 export default function Informes() {
-  const [selectedEstaciones, setSelectedEstaciones] = useState<number[]>([]);
-  const [selectedParamsContaminants, setSelectedParamsContaminants] = useState<string[]>(["pm25"]);
+  const [stations, setStations] = useState<Estacion[]>([]);
+  const [selectedStations, setSelectedStations] = useState<number[]>([]);
+  const [variablesPorEstacion, setVariablesPorEstacion] = useState<any[]>([]);
+  const [selectedParams, setSelectedParams] = useState<number[]>([]);
 
-  const [selectedParamsMeteo, setSelectedParamsMeteo] = useState<string[]>([ "temperatura"]);
+  // Fechas iniciales
+  const today = new Date();
+  const lastMonth = new Date();
+  lastMonth.setDate(today.getDate() - 400);
 
-  const [sinceDate, setSinceDate] = useState("2023-01-01");
-  const [intoDate, setIntoDate] = useState("2023-01-31");
+  const [sinceDate, setSinceDate] = useState(lastMonth.toISOString().slice(0, 10));
+  const [intoDate, setIntoDate] = useState(today.toISOString().slice(0, 10));
+  const [sinceHour, setSinceHour] = useState("00:00");
+  const [intoHour, setIntoHour] = useState("23:59");
 
-  const [selectedDate, setSelectedDate] =useState<string[]>(["Hoy"]);
-  const [sinceHour, setSinceHour] = useState("00:00:00");
-   const [intoHour, setToHour] = useState("24:00:00");
+  const [registros, setRegistros] = useState<Registro[]>([]);
 
-  const [registros, setRegistros] = useState<Registro[]>([
-    { estacion: "Estación Central A", fecha: "2023-01-05", parametro: "PM2.5", valor: 15.2, unidad: "µg/m³" },
-    { estacion: "Estación Central A", fecha: "2023-01-05", parametro: "Temperatura", valor: 22.1, unidad: "°C" },
-    { estacion: "Estación Industrial C", fecha: "2023-01-10", parametro: "PM2.5", valor: 35.8, unidad: "µg/m³" },
-    { estacion: "Estación Industrial C", fecha: "2023-01-10", parametro: "Ozono (O3)", valor: 65.3, unidad: "µg/m³" },
-    { estacion: "Estación Urbana B", fecha: "2023-01-15", parametro: "Temperatura", valor: 18.7, unidad: "°C" },
+  // -------------------------------------------------------------
+  // Cargar estaciones
+  // -------------------------------------------------------------
+  useEffect(() => {
+    async function loadStations() {
+      const data = await getAllStations();
+      setStations(data);
+    }
+    loadStations();
+  }, []);
 
-    { estacion: "Estación Industrial C", fecha: "2023-01-10", parametro: "PM2.5", valor: 35.8, unidad: "µg/m³" },
-    { estacion: "Estación Industrial C", fecha: "2023-01-10", parametro: "Ozono (O3)", valor: 65.3, unidad: "µg/m³" },
-    { estacion: "Estación Urbana B", fecha: "2023-01-15", parametro: "Temperatura", valor: 18.7, unidad: "°C" },
-
-    { estacion: "Estación Industrial C", fecha: "2023-01-10", parametro: "PM2.5", valor: 35.8, unidad: "µg/m³" },
-    { estacion: "Estación Industrial C", fecha: "2023-01-10", parametro: "Ozono (O3)", valor: 65.3, unidad: "µg/m³" },
-    { estacion: "Estación Urbana B", fecha: "2023-01-15", parametro: "Temperatura", valor: 18.7, unidad: "°C" },
-  ]);
-
-  const toggleEstacion = (id: number) => {
-    setSelectedEstaciones((prev) =>
+  // -------------------------------------------------------------
+  // Seleccionar estación
+  // -------------------------------------------------------------
+  const toggleStation = (id: number) => {
+    setSelectedStations((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
   };
 
-  const toggleParametroContaminants = (id: string) => {
-    setSelectedParamsContaminants((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    );
-  };
-   const toggleParametroMeteoro = (id: string) => {
-    setSelectedParamsMeteo((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    );
-  };
-  
-  const toggleParamsDate = (id: string) => {
-    setSelectedDate((prev) =>
+  // -------------------------------------------------------------
+  // Cargar variables de estaciones seleccionadas
+  // -------------------------------------------------------------
+  useEffect(() => {
+    async function loadVars() {
+      if (selectedStations.length === 0) {
+        setVariablesPorEstacion([]);
+        setSelectedParams([]);
+        return;
+      }
+
+      const data = await getVariablesGroupedByStation(selectedStations);
+      setVariablesPorEstacion(data);
+    }
+
+    loadVars();
+  }, [selectedStations]);
+
+  // -------------------------------------------------------------
+  // Seleccionar variables
+  // -------------------------------------------------------------
+  const toggleParam = (id: number) => {
+    setSelectedParams((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
   };
 
-  const generarReporte = () => {
-    // Aquí iría la lógica real para filtrar y obtener los datos del backend
-    console.log("Generando reporte para:", selectedEstaciones, selectedParamsMeteo, selectedParamsContaminants, intoDate);
+  // -------------------------------------------------------------
+  // GENERAR REPORTE
+  // -------------------------------------------------------------
+  const generarReporte = async () => {
+    const data = await getStationReport({
+      stations: selectedStations,
+      variables: selectedParams,
+      since: `${sinceDate} ${sinceHour}`,
+      until: `${intoDate} ${intoHour}`,
+    });
+
+    setRegistros(data);
   };
 
+  // -------------------------------------------------------------
+  // EXPORTAR CSV
+  // -------------------------------------------------------------
   const exportarCSV = () => {
-    // Función de ejemplo
-    alert("Exportar CSV (implementación real depende del backend o librería)");
+    if (registros.length === 0) return alert("No hay datos para exportar.");
+
+    const header = ["Estación", "Fecha", "Parámetro", "Valor", "Unidad"];
+    const rows = registros.map((r) => [
+      r.estacion,
+      r.fecha,
+      r.parametro,
+      r.valor,
+      r.unidad,
+    ]);
+
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [header, ...rows].map((e) => e.join(",")).join("\n");
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.href = encodedUri;
+    link.download = "reporte_estaciones.csv";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
   };
 
-  const exportarPDF = () => {
-    alert("Exportar PDF (implementación real depende de jsPDF o backend)");
-  };
+  // -------------------------------------------------------------
+  // AGRUPAR DATOS PARA LOS GRÁFICOS POR VARIABLE
+  // -------------------------------------------------------------
+  const graficosPorVariable: Record<string, any> = {};
+
+  registros.forEach((r) => {
+    const variable = r.parametro;
+
+    if (!graficosPorVariable[variable]) {
+      graficosPorVariable[variable] = {
+        labels: [],
+        series: {},
+      };
+    }
+
+    if (!graficosPorVariable[variable].series[r.estacion]) {
+      graficosPorVariable[variable].series[r.estacion] = [];
+    }
+
+    graficosPorVariable[variable].labels.push(r.fecha);
+    graficosPorVariable[variable].series[r.estacion].push(r.valor);
+  });
+
+  const colores = [
+    "#2563eb", "#16a34a", "#dc2626", "#7c3aed",
+    "#ea580c", "#0891b2", "#db2777", "#65a30d"
+  ];
 
   return (
-    <div className="p-8 space-y-6">
-        <Title>Generación de Informes Analíticos</Title>
+    <div className="p-8 space-y-10 text-gray-600">
+      <Title>Generación de Informes Analíticos</Title>
 
-      {/* Configuración del Informe */}
-      <div className="grid grid-cols-2 gap-8 text-gray-500">
-        <div className="border p-4 rounded space-y-4 ">
-            <Subtitle className="text-sky-600">Configuración del Informe</Subtitle>
-          <div>
+      <div className="grid grid-cols-2 gap-8">
+        {/* -----------------------------------------------------
+           PANEL IZQUIERDO: Estaciones + Fechas
+        ------------------------------------------------------ */}
+        <div className="border p-4 rounded space-y-4">
+          <Subtitle className="text-sky-600">Configuración del Informe</Subtitle>
 
-            <Paragraph  className="text-sky-500">Selección de Estaciones</Paragraph>
-            <div className="space-y-1 mt-1 ">
-              {estaciones.map((est) => (
-                <label key={est.id} className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={selectedEstaciones.includes(est.id)}
-                    onChange={() => toggleEstacion(est.id)}
-                  />
-                  {est.name}
-                </label>
-              ))}
-            </div>
+          {/* Selección de estaciones */}
+          <Paragraph className="text-sky-500">Seleccionar Estaciones</Paragraph>
+          <div className="space-y-1 mt-1">
+            {stations.map((est) => (
+              <label key={est.idstation} className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={selectedStations.includes(est.idstation)}
+                  onChange={() => toggleStation(est.idstation)}
+                />
+                {est.name}
+              </label>
+            ))}
           </div>
 
-           <div>
-              <Paragraph className="text-sky-500">Selección de Periodos</Paragraph>
-            <div className="space-y-1 mt-1 flex flex-row gap-5">
-              {selectTime.map((date) => (
-                <label  className="flex  items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={selectedDate.includes(date.id)}
-                    onChange={() => toggleParamsDate(date.id)}
-                  />
-                  {date.name}
-                </label>
-              ))}
-            </div>
-            </div>
-          <div className="flex gap-4">
+          {/* Fechas */}
+          <div className="flex gap-4 mt-3">
             <div>
-              <label className="block font-medium">Desde</label>
+              <label>Desde:</label>
               <input
                 type="date"
                 value={sinceDate}
@@ -168,9 +197,9 @@ export default function Informes() {
                 className="border rounded p-1"
               />
             </div>
-          
+
             <div>
-              <label className="block font-medium">Hasta</label>
+              <label>Hasta:</label>
               <input
                 type="date"
                 value={intoDate}
@@ -178,107 +207,92 @@ export default function Informes() {
                 className="border rounded p-1"
               />
             </div>
-         
           </div>
-            <div className="flex gap-4">
-                   <div>
-      <label  className="block font-medium">Hora Inicio:</label>
-      <input
-        type="time"
-        id="hora-input"
-        name="hora-input"
-        value={sinceHour}
-        onChange={(e) => setSinceHour(e.target.value)}
-        min="00:00"
-        max="24:00"
-        step="30"
-         className="border rounded p-1"
-      />
-    </div>
-               <div>
-      <label  className="block font-medium">Hora Fin:</label>
-      <input
-        type="time"
-        id="hora-input"
-        name="hora-input"
-        value={intoHour}
-        onChange={(e) => setToHour(e.target.value)}
-        min="00:00"
-        max="24:00"
-        step="30"
-         className="border rounded p-1"
-      />
-    </div>
+
+          {/* Horas */}
+          <div className="flex gap-4 mt-2">
+            <div>
+              <label>Hora Inicio:</label>
+              <input
+                type="time"
+                value={sinceHour}
+                onChange={(e) => setSinceHour(e.target.value)}
+                className="border rounded p-1"
+              />
             </div>
 
+            <div>
+              <label>Hora Fin:</label>
+              <input
+                type="time"
+                value={intoHour}
+                onChange={(e) => setIntoHour(e.target.value)}
+                className="border rounded p-1"
+              />
+            </div>
+          </div>
         </div>
 
-        {/* Ajustar Parámetros */}
+        {/* -----------------------------------------------------
+           PANEL DERECHO: Variables por estación
+        ------------------------------------------------------ */}
         <div className="border p-4 rounded space-y-4">
-          <h2 className="font-semibold">Ajustar Parámetros</h2>
-          <div>
-            <label className="block font-medium">Tipo de Informe</label>
-            <select className="border rounded p-1 w-full mt-1">
-              <option>Reporte en tabla </option>
-               <option>Grafica de datos</option>
-            </select>
-          </div>
-          <div className="mt-2">
-            <div className="grid grid-cols-2 gap-2 mt-1">
-                  <div className="grid grid-cols-1 gap-2 mt-1"> 
-              <Paragraph className="block text-sky-500 font-medium">  Meteorológicos</Paragraph>
-            
-                     {meteorologicParams.map((param) => (
-                <label key={param.id} className="flex items-center gap-2">
+          <Subtitle className="text-sky-600">Variables por Estación</Subtitle>
+
+          {variablesPorEstacion.length === 0 && (
+            <Paragraph>Seleccione estaciones para ver sus variables.</Paragraph>
+          )}
+
+          {variablesPorEstacion.map((est) => (
+            <div key={est.idStation} className="border p-3 rounded bg-gray-50">
+              <h3 className="text-lg font-semibold text-sky-700">{est.station}</h3>
+
+              {(est.variables ?? []).map((v: any) => (
+                <label
+                  key={v.idVariable}
+                  className="flex items-center gap-2 ml-4 mt-1"
+                >
                   <input
                     type="checkbox"
-                    checked={selectedParamsMeteo.includes(param.id)}
-                    onChange={() => toggleParametroMeteoro(param.id)}
+                    checked={selectedParams.includes(v.idVariable)}
+                    onChange={() => toggleParam(v.idVariable)}
                   />
-                  {param.name}
+                  {v.name} ({v.unit})
                 </label>
-              ))} </div>
-              
-                <div className="grid grid-cols-1 gap-2 mt-1">  
-              <Paragraph className="block text-sky-500 font-medium">Contaminantes</Paragraph>
-              {parametrosContaminants.map((param) => (
-                <label key={param.id} className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={selectedParamsContaminants.includes(param.id)}
-                    onChange={() => toggleParametroContaminants(param.id)}
-                  />
-                  {param.name}
-                </label>
-              ))} </div>
+              ))}
             </div>
-          </div>
-        
-             <Button className="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300" onClick={generarReporte} >
-           
-            Generar Reporte</Button>
+          ))}
+
+          <Button
+            className="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300 mt-4"
+            onClick={generarReporte}
+          >
+            Generar Reporte
+          </Button>
         </div>
       </div>
 
-      {/* Vista previa del informe */}
+      {/* -----------------------------------------------------
+         TABLA DE RESULTADOS
+      ------------------------------------------------------ */}
       <div className="border p-4 rounded">
+        <Subtitle className="text-sky-600">Vista Previa del Informe</Subtitle>
 
-              <Subtitle className="block text-sky-500 font-medium">Vista Previa del Informe</Subtitle>
-       
-        <div className="overflow-x-auto text-gray-500">
-          <table className="min-w-full border border-gray-200">
+        <div className="max-h-[400px] overflow-y-auto border rounded mt-3">
+          <table className="min-w-full border text-sm">
             <thead className="bg-gray-100">
               <tr>
-                <th className="border px-2 py-1 text-left">Estación</th>
-                <th className="border px-2 py-1 text-left">Fecha</th>
-                <th className="border px-2 py-1 text-left">Parámetro</th>
-                <th className="border px-2 py-1 text-left">Valor</th>
-                <th className="border px-2 py-1 text-left">Unidad</th>
+                <th className="border px-2 py-1">Estación</th>
+                <th className="border px-2 py-1">Fecha</th>
+                <th className="border px-2 py-1">Parámetro</th>
+                <th className="border px-2 py-1">Valor</th>
+                <th className="border px-2 py-1">Unidad</th>
               </tr>
             </thead>
+
             <tbody>
-              {registros.map((r, i) => (
-                <tr key={i}>
+              {registros.map((r, idx) => (
+                <tr key={idx}>
                   <td className="border px-2 py-1">{r.estacion}</td>
                   <td className="border px-2 py-1">{r.fecha}</td>
                   <td className="border px-2 py-1">{r.parametro}</td>
@@ -290,15 +304,53 @@ export default function Informes() {
           </table>
         </div>
 
-        {/* Botones de exportación */}
-        <div className="mt-4 flex justify-center gap-2">
-        
-           <Button className="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300" onClick={exportarCSV} >
-            Exportar CSV</Button>
-           <Button className="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300" onClick={exportarPDF} >
-            Exportar PDF</Button>
-         
+        <div className="p-3 border-t text-sm text-gray-500">
+          <SmallText>
+            Mostrando {registros.length} mediciones.
+          </SmallText>
         </div>
+      </div>
+
+      {/* -----------------------------------------------------
+         BOTONES DE ACCIÓN
+      ------------------------------------------------------ */}
+      <div className="mt-4 flex gap-4 justify-center">
+        <Button
+          className="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300"
+          onClick={exportarCSV}
+        >
+          Exportar CSV
+        </Button>
+      </div>
+
+      {/* -----------------------------------------------------
+         GRAFIOS POR VARIABLE
+      ------------------------------------------------------ */}
+      <div className="space-y-10 mt-10">
+        {Object.keys(graficosPorVariable).map((variable, idx) => {
+          const info = graficosPorVariable[variable];
+          const estaciones = Object.keys(info.series);
+
+          const datasets = estaciones.map((est, estIdx) => ({
+            label: `${est} — ${variable}`,
+            data: info.series[est],
+            borderColor: colores[estIdx % colores.length],
+            backgroundColor: colores[estIdx % colores.length],
+            tension: 0.3,
+            borderWidth: 2,
+            pointRadius: 3,
+          }));
+
+          return (
+            <LineChart
+              key={idx}
+              canvasId={`grafico-var-${idx}`}
+              labels={info.labels}
+              datasets={datasets}
+              title={`Variable: ${variable}`}
+            />
+          );
+        })}
       </div>
     </div>
   );

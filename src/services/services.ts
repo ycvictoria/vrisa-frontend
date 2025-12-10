@@ -58,3 +58,55 @@ export async function deactivateUser(id: number) {
   const { error } = await supabase.rpc("deactivate_user", { p_iduser: id });
   if (error) throw error;
 }
+
+
+
+
+//variables por cada estación
+export async function getVariablesByStations(stationIds: number[]) {
+  const { data, error } = await supabase.rpc("get_variables_by_stations", {
+    station_ids: stationIds.length > 0 ? stationIds : null
+  });
+
+  if (error) throw error;
+  return data;
+}
+
+export async function getAllStations() {
+  const { data, error } = await supabase.rpc("get_all_stations");
+
+  if (error) throw error;
+  return data;
+}
+
+export async function getVariablesGroupedByStation(stationIds: number[]) {
+  const { data, error } = await supabase.rpc(
+    "get_variables_grouped_by_station",
+    { station_ids: stationIds }
+  );
+
+  if (error) throw error;
+  return data;
+}
+
+//para seccion de reportes: busqueda mediciones segun filtros
+export async function getStationReport(payload: {
+  stations: number[];
+  variables: number[];
+  since: string;
+  until: string;
+}) {
+  const { stations, variables, since, until } = payload;
+
+  const { data, error } = await supabase.rpc("get_station_report", {
+    stations,
+    variables,
+    since_timestamp: since,
+    until_timestamp: until
+  });
+
+  if (error) throw error;
+  return data;
+}
+
+
