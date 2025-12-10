@@ -9,16 +9,19 @@ export interface User {
 }
 
 export interface Researcher {
-  id?: number;
+  id: number;
+  iduser?: number;
+  name: string;
   first_name?: string | null;
   last_name?: string | null;
-  name?: string; // <- añadido
-  role?: string;
-  status?: string;
+  email?: string | null;
+  role: "researcher" | "institution" | string;
+  status: string;
   authorization_status?: string;
-  created_at?: string;
   registration_date?: string;
+  created_at?: string;
 }
+
 
 export interface Ubication {
   latitude: number;

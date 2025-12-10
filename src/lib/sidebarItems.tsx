@@ -1,10 +1,15 @@
 export const sidebarItems: any = {
+
+   dev: [
+    { name: "Gestión de Usuarios", href: "/admin/users", icon: "👨🏻‍💻" },
+    { name: "Autorización de Estaciones", href: "/admin/stations", icon: "🖥️" },
+    { name: "Mis estaciones", href: "/researcher/stations", icon: "📊" },
+    { name: "Reportes", href: "/researcher/reports", icon: "📈" },
+  ],
   admin: [
     { name: "Gestión de Usuarios", href: "/admin/users", icon: "👨🏻‍💻" },
     { name: "Autorización de Estaciones", href: "/admin/stations", icon: "🖥️" },
-    { name: "Gestión de Investigadores", href: "/admin/stations/researcher", icon: "👩‍🔬" },
-    // solo lo agrego para que lo vean 1 vez ya que da erro por que es diferente direccion  si les da error comentenlo
-    { name: "Mi Perfil", href: "/dashboard/researcher", icon: "👤" }, 
+    { name: "Módulo de Gestión de Investigadores", href: "/admin/stations/researcher", icon: "👩‍🔬" },
   ],
   estacion: [
     { name: "Solicitudes", href: "/estacion/solicitudes", icon: "📩" },
@@ -16,11 +21,15 @@ export const sidebarItems: any = {
   ],
 
   investigador: [
-  { name: "Mi Perfil", href: "/dashboard/researcher", icon: "👤" },
-  { name: "Gestión de Mis Estaciones", href: "/dashboard/researcher/stations", icon: "📡" },
-  { name: "Generación de Reportes", href: "/dashboard/researcher/reportes", icon: "📄" },
-  { name: "Tendencias, Alertas y Mantenimiento", href: "/dashboard/researcher/trends", icon: "📊" }
+    { name: "Mis estaciones", href: "/researcher/stations", icon: "📊" },
+    { name: "Reportes", href: "/researcher/reports", icon: "📈" },
   ],
+investigador: [
+  { name: "Mi Perfil", href: "/researcher/perfil", icon: "👤" },
+  { name: "Gestión de Mis Estaciones", href: "/dashboard/researcher", icon: "📡" }, 
+  { name: "Generación de Reportes", href: "/researcher/reportes", icon: "📄" },
+  { name: "Tendencias, Alertas y Mantenimiento", href: "/researcher/TrendsDashboard", icon: "📊" }
+],
   ciudadano: [
     { name: "Información Pública", href: "/ciudadano/info", icon: "🌍" },
     { name: "Mapa de Estaciones", href: "/ciudadano/mapa", icon: "📍" },
