@@ -29,4 +29,32 @@ export async function createUser(payload: {
   }
 
   return data; // esto será la fila retornada por la función
+
+}
+
+//autorizar registros usuario nuevo
+export async function authorizeUser(id: number) {
+  const { error } = await supabase.rpc("authorize_user_registration", { _id: id });
+  if (error) throw error;
+}
+
+
+//rechazar registros usuario nuevo
+export async function rejectUser(id: number) {
+  const { error } = await supabase.rpc("reject_user_registration", { _id: id });
+  if (error) throw error;
+}
+
+
+//cambiar estado cuenta: activar 
+export async function activateUser(id: number) {
+  const { error } = await supabase.rpc("activate_user", { p_iduser: id });
+  if (error) throw error;
+}
+
+//
+//cambiar estado cuenta: inactivar 
+export async function deactivateUser(id: number) {
+  const { error } = await supabase.rpc("deactivate_user", { p_iduser: id });
+  if (error) throw error;
 }

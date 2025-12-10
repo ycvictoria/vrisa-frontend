@@ -29,7 +29,11 @@ export default function AddUserDialog({ isOpen, onClose, onUserCreated }: any) {
       const result = await createUser(newUserPayload);
 
       // 👇👇 AQUI SE ENVIA EL NUEVO USUARIO A LA PAGINA
-      if (onUserCreated) onUserCreated(result[0]);
+      //if (onUserCreated) onUserCreated(result[0]);
+
+       if (onUserCreated && result && result[0]) {
+  onUserCreated(result[0]);
+      }
 
       onClose();
     } catch (err) {
