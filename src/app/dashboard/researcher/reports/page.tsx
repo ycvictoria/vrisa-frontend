@@ -10,7 +10,7 @@ import {
   getVariablesGroupedByStation,
   getAllStations,
   getStationReport,
-} from "@/services/services";
+} from "@/services/stations";
 
 interface Estacion {
   idstation: number;
