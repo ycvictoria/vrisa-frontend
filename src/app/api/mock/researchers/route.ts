@@ -112,39 +112,49 @@ export async function PUT(req: Request) {
 }
 
 /* =========================================================
-    DELETE: Eliminar investigador 
+   ✅ DELETE: eliminar usuario (y sus registros de auditoría)
 ========================================================= */
 export async function DELETE(req: Request) {
   try {
-    // Intentamos leer el ID del body
     let id: number | null = null;
 
     try {
       const body = await req.json();
       id = body?.id ?? null;
     } catch {
-      // Si no hay body, tomamos el id desde la URL
+      // Si viene por query param (DELETE /api/mock/researchers?id=XX)
       const url = new URL(req.url);
-      const paramId = url.searchParams.get("id");
-      id = paramId ? Number(paramId) : null;
+      id = Number(url.searchParams.get("id"));
     }
 
-    if (!id) {
-      return NextResponse.json(
-        { error: "Falta el ID del investigador" },
-        { status: 400 }
-      );
+    if (!id)
+      return NextResponse.json({ error: "Falta el ID del usuario" }, { status: 400 });
+
+    // 🔹 1️⃣ Eliminar registros relacionados en la tabla de auditoría
+    const { error: auditError } = await supabase
+      .from("audit_userdata_changes_log")
+      .delete()
+      .eq("iduser", id);
+
+    if (auditError) {
+      console.error("⚠️ Error al eliminar logs relacionados:", auditError);
+      // No hacemos return aquí, porque puede seguir con el borrado del usuario
     }
 
-    const { error } = await supabase.from("user").delete().eq("iduser", id);
+    // 🔹 2️⃣ Eliminar el usuario principal
+    const { error: userError } = await supabase
+      .from("user")
+      .delete()
+      .eq("iduser", id);
 
-    if (error) throw error;
+    if (userError) {
+      console.error("❌ Error al eliminar usuario:", userError);
+      return NextResponse.json({ error: userError.message }, { status: 500 });
+    }
 
-    return NextResponse.json({
-      message: `Investigador con id ${id} eliminado correctamente`,
-    });
+    return NextResponse.json({ message: `Usuario ${id} eliminado correctamente` });
   } catch (e: any) {
-    console.error("❌ Error en DELETE /api/mock/researchers:", e);
+    console.error("❌ Error general en DELETE /api/mock/researchers:", e);
     return NextResponse.json({ error: e.message }, { status: 500 });
   }
 }
