@@ -29,7 +29,7 @@ export default function Sidebar() {
         {items.map((item: any, idx: number) => (
           <Link
             key={idx}
-            href={`/dashboard${item.href}`}
+            href={`${item.href}`}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl ${
               path.includes(item.href)
                 ? "bg-sky-600 text-white"

@@ -29,6 +29,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-  ],
+, "src/app/dashboard/station/[id]/alerts_and_maintenance"  ],
   "exclude": ["node_modules"]
 }
