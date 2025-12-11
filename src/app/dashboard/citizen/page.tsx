@@ -10,7 +10,7 @@ interface Variable {
 }
 
 interface Station {
-  name: string;
+  station_name: string;
   latitude: number;
   longitude: number;
   variables: Variable[];
@@ -27,6 +27,7 @@ export default function CitizenPage() {
         const res = await fetch("/api/public/citizen");
         if (!res.ok) throw new Error("Error al cargar las estaciones");
         const data = await res.json();
+        console.log(data);
         setStations(data);
       } catch (err: any) {
         setError(err.message);
@@ -70,7 +71,7 @@ export default function CitizenPage() {
               className="bg-white rounded-xl shadow-md hover:shadow-lg transition p-5 border border-gray-200"
             >
               <h2 className="text-xl font-semibold text-blue-600 mb-2">
-                {station.name}
+                {station.station_name}
               </h2>
 
               <p className="text-sm text-gray-500 mb-2">
