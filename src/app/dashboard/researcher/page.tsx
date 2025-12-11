@@ -1,3 +1,4 @@
+"use client";
 import { useEffect, useState } from "react";
 import type { Researcher } from "@/types/data_types";
 
