@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { supabase } from "../../../lib/supabaseClient";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -23,17 +23,17 @@ export default function RegisterPage() {
   };
 
   const handleRegister = async () => {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
+  const { error } = await supabase.auth.signUp({
+    email,
+    password,
+  });
 
-    if (error) {
-      setMsg(error.message);
-    } else {
-      router.push("/auth/login");
-    }
-  };
+  if (error) {
+    setMsg(error.message);
+  } else {
+    router.push("/auth/login");
+  }
+};
 
   return (
     <div className="min-h-screen flex">

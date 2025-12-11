@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "../../../lib/supabaseClient";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -11,8 +11,10 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [msg, setMsg] = useState("");
 
+
   const handleLogin = async () => {
-    const { error } = await supabase.auth.signInWithPassword({
+    setMsg("")    
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
@@ -20,10 +22,15 @@ export default function LoginPage() {
     if (error) {
       setMsg(error.message);
     } else {
-      // Redirige al dashboard después de login
-      router.push("/dashboard");
-    }
-  };
+      setMsg(`Bienvenido: ${data.user?.email}`);
+    console.log("Session:", data.session);
+    // Aquí podrías redirigir al usuario a otra página
+    // ejemplo: router.push("/dashboard");
+    setTimeout(() => {
+    router.push("/dashboard/admin");
+    }, 500);
+  }
+};
 
   return (
     <div className="w-full h-screen flex bg-white">

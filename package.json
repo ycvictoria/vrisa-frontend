@@ -9,10 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
-<<<<<<< Updated upstream
-=======
     "@supabase/supabase-js": "^2.87.1",
->>>>>>> Stashed changes
     "clsx": "^2.1.1",
     "lucide-react": "^0.553.0",
     "next": "16.0.3",
