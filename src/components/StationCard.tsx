@@ -26,10 +26,9 @@ export function StationCard({
       : "text-yellow-600 bg-yellow-100";
 
   return (
-    <div className="border rounded-xl p-4 shadow-sm hover:shadow-md transition bg-white w-[330px]">
+    <div className="border rounded-xl p-4 mb-5 shadow-sm hover:shadow-md transition bg-white w-[330px]">
       {/* Checkbox + alertas */}
       <div className="flex justify-between items-center mb-3">
-        <input type="checkbox" className="w-4 h-4 cursor-pointer" />
 
         {alerts > 0 && (
           <span className="text-white text-sm px-3 py-1 bg-red-400 rounded-full">
@@ -62,12 +61,13 @@ export function StationCard({
         </span>
      </div>
      
-      {/* Sensores */}
-      <p className="text-xs text-gray-500 px-1 py-1 mt-2">Número de Sensores: {sensors}</p>
 
       {/* Botón */}
       <button className="mt-4 w-full bg-gray-100 hover:bg-sky-200 text-sky-700 font-medium py-2 rounded-lg">
         Ver Estación
+      </button>
+       <button className="mt-4 w-full bg-gray-100 hover:bg-sky-200 text-sky-700 font-medium py-2 rounded-lg">
+        Unirse
       </button>
     </div>
   );

@@ -1,3 +1,7 @@
+
+// src/services/stations.ts
+import { supabase } from "@/lib/supabaseClient";
+
 export async function createStation(data:any) {
   const res = await fetch("/api/mock/stations", {
     method: "POST",
@@ -12,9 +16,20 @@ export async function getStations() {
   const res = await fetch("/api/mock/stations");
   return await res.json();
 }
+export async function getEstacionNombre(id: number) {
+  const { data, error } = await supabase
+    .from("station")
+    .select("name")
+    .eq("idstation", id)
+    .single();
 
-// src/services/stations.ts
-import { supabase } from "@/lib/supabaseClient";
+  if (error) {
+    console.error("Error buscando estación:", error);
+    return null;
+  }
+
+  return data.name;
+}
 
 // =======================================================
 // 1️⃣ OBTENER ESTACIÓN POR ID

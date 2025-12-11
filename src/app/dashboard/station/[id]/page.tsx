@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { useParams } from "next/navigation";
+import Link from "next/link";
+
 
 import {
   MapPin,
@@ -231,9 +233,16 @@ export default function StationPage() {
             </div>
           </>
         )}
-
+<div className=" flex justify-end">
+  <Link
+    href={`/dashboard/station/${idStation}/alerts_and_maintenance`}
+    className="px-3 py-2 rounded-md bg-sky-500 hover:bg-sky-600 text-white font-medium shadow-md transition"
+  >
+    🔧 Ver Alertas & Mantenimiento
+  </Link>
+</div>
         <span
-          className={`px-3 py-1 rounded-full text-sm font-medium ${station?.status === "active"
+          className={`px-3 py-1 rounded-full text-lg font-medium ${station?.status === "active"
             ? "bg-green-100 text-green-700"
             : station?.status === "maintenance"
               ? "bg-yellow-100 text-yellow-700"

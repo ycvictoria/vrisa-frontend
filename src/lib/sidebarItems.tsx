@@ -1,37 +1,47 @@
-export const sidebarItems: any = {
+export const sidebarItems: Record<string, any[]> = {
+  dev: [
+    { name: "Gestión de Usuarios", href: "/dashboard/admin/users", icon: "👨🏻‍💻" },
+    { name: "Investigadores y Estaciones", href: "/dashboard/admin/stations/researcher", icon: "👩‍🔬" },
 
-   dev: [
-    { name: "Gestión de Usuarios", href: "/admin/users", icon: "👨🏻‍💻" },
-    { name: "Autorización de Estaciones", href: "/admin/stations", icon: "🖥️" },
-    { name: "Mis estaciones", href: "/researcher/stations", icon: "📊" },
-    { name: "Reportes", href: "/researcher/reports", icon: "📈" },
+    // Researcher sections
+    { name: "Mis estaciones", href: "/dashboard/researcher/stations", icon: "📊" },
+    { name: "Reportes", href: "/dashboard/researcher/reports", icon: "📈" },
+    { name: "Tendencias y Alertas", href: "/dashboard/researcher/TrendsDashboard", icon: "📊" },
+
+    // Station sections (redirigirán según ID)
+    { name: "Mi estación", href: "/dashboard/station", icon: "📡" },
+    { name: "Solicitudes estación", href: "/dashboard/station/users_network", icon: "📩" },
+    { name: "Alertas & Mantenimiento", href: "/dashboard/station/alerts_and_maintenance", icon: "🛠️" },
   ],
+
   admin: [
-    { name: "Gestión de Usuarios", href: "/admin/users", icon: "👨🏻‍💻" },
-    { name: "Autorización de Estaciones", href: "/admin/stations", icon: "🖥️" },
-    { name: "Módulo de Gestión de Investigadores", href: "/admin/stations/researcher", icon: "👩‍🔬" },
-  ],
-  estacion: [
-    { name: "Solicitudes", href: "/estacion/solicitudes", icon: "📩" },
-    { name: "Mantenimiento", href: "/estacion/mantenimiento", icon: "🛠️" },
-  ],
-  institucion: [
-    { name: "Investigadores", href: "/institucion/investigadores", icon: "👩‍🔬" },
-    { name: "Permisos", href: "/institucion/permisos", icon: "📝" },
+    { name: "Gestión de Usuarios", href: "/dashboard/admin/users", icon: "👨🏻‍💻" },
+    { name: "Investigadores y Estaciones", href: "/dashboard/admin/stations/researcher", icon: "👩‍🔬" },
+
+    // Admin también puede ver reportes
+    { name: "Reportes", href: "/dashboard/researcher/reports", icon: "📈" },
   ],
 
-  investigador: [
-    { name: "Mis estaciones", href: "/researcher/stations", icon: "📊" },
-    { name: "Reportes", href: "/researcher/reports", icon: "📈" },
+  station: [
+    { name: "Mi estación", href: "/dashboard/station", icon: "📡" },
+    { name: "Solicitudes", href: "/dashboard/station/users_network", icon: "📩" },
+    { name: "Alertas & Mantenimiento", href: "/dashboard/station/alerts_and_maintenance", icon: "🛠️" },
   ],
-investigador: [
-  { name: "Mi Perfil", href: "/researcher/perfil", icon: "👤" },
-  { name: "Gestión de Mis Estaciones", href: "/dashboard/researcher", icon: "📡" }, 
-  { name: "Generación de Reportes", href: "/researcher/reportes", icon: "📄" },
-  { name: "Tendencias, Alertas y Mantenimiento", href: "/researcher/TrendsDashboard", icon: "📊" }
-],
-  ciudadano: [
-    { name: "Información Pública", href: "/ciudadano/info", icon: "🌍" },
-    { name: "Mapa de Estaciones", href: "/ciudadano/mapa", icon: "📍" },
+
+  institution: [
+    { name: "Inicio", href: "/dashboard/institution", icon: "🏢" },
+    { name: "Investigadores", href: "/dashboard/institution/researchers", icon: "👩‍🔬" },
+  ],
+
+  researcher: [
+    { name: "Mi Perfil", href: "/dashboard/researcher/perfil", icon: "👤" },
+    { name: "Mis estaciones", href: "/dashboard/researcher/stations", icon: "📊" },
+    { name: "Reportes", href: "/dashboard/researcher/reports", icon: "📈" },
+    { name: "Tendencias y Alertas", href: "/dashboard/researcher/TrendsDashboard", icon: "📊" },
+  ],
+
+  citizen: [
+    { name: "Información Pública", href: "/dashboard/citizen/info", icon: "🌍" },
+    { name: "Mapa de Estaciones", href: "/dashboard/citizen/map", icon: "📍" },
   ],
 };
