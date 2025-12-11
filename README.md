@@ -13,7 +13,7 @@ yarn install
 npm run dev
 
 ## Abrir el navegador en
-[Localhost 3000](http://localhost:3000) 
+[Localhost 3000](http://localhost:3000/dashboard/admin/users)
 
 
 ## Paquetes principales usados:
