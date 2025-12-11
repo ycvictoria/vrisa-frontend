@@ -35,6 +35,24 @@ export interface User {
   account_status: AccountStatus;
 }
 
+export interface Researcher {
+  id: number;
+  iduser?: number;
+  name: string;
+  first_name?: string | null;
+  last_name?: string | null;
+  email?: string | null;
+  role: "researcher" | "institution" | string;
+  status: string;
+  authorization_status?: string;
+  registration_date?: string;
+  created_at?: string;
+}
+
+
+export interface Ubication {
+  latitude: number;
+  longitude: number;
 
 // ======================================================
 // SESSION LOG (antes login)
@@ -100,6 +118,7 @@ export interface DocumentID {
 // ======================================================
 // STATION
 // ======================================================
+
 
 export interface Station {
   idstation: number;

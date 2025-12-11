@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { Title, Subtitle, Paragraph } from "@/components/Text";
+import { Station } from "@/types/data_types";
+import { StationCard } from "../../../../components/StationCard";
 import Button from "@/components/Button";
 
 

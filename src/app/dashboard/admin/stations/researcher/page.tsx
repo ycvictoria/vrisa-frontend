@@ -1,205 +1,275 @@
 "use client";
-
-import { useEffect, useState } from "react";
-import { Title, Subtitle, Paragraph } from "@/components/Text";
-import SearchBar from "@/components/SearchBar";
-import DropdownSelect from "@/components/DropdownSelect";
-import Button from "@/components/Button";
-import { StatsCard } from "@/components/StatsCard";
+import React, { useEffect, useState } from "react";
 import Pagination from "@/components/Pagination";
+import SearchBar from "@/components/SearchBar";
 
-/**
- * Pagina: Gestion de Investigadores 
- * Usa los mocks: /api/mock/institutions y /api/mock/researchers
- */
-
-// tipos locales 
-type Institution = {
-  idInstitution: number;
-  name: string;
-  address?: string;
-  logo?: string;
-  color?: string;
-};
-
-type Researcher = {
-  idUser: number;
-  name: string;
-  institution: number;
-  state?: string; // active/inactive etc.
-  date_issue?: string;
-};
-
-export default function InstitutionResearchersPage() {
-  const [institution, setInstitution] = useState<Institution | null>(null);
-  const [researchers, setResearchers] = useState<Researcher[]>([]);
-  const [search, setSearch] = useState("");
-  const [filterState, setFilterState] = useState("all");
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 5;
-
-  // cargar institution 
-  useEffect(() => {
-    async function load() {
-      try {
-        const resInst = await fetch("/api/mock/institutions");
-        if (resInst.ok) {
-          const insts = await resInst.json();
-          setInstitution(insts?.[0] ?? null);
-        }
-
-        const res = await fetch("/api/mock/researchers");
-        if (res.ok) {
-          const data = await res.json();
-          // normalizamos algunos campos para la tabla
-          const normalized: Researcher[] = data.map((r: any) => ({
-            idUser: r.idUser,
-            name: r.name,
-            institution: r.institution,
-            state: r.state ?? "active",
-            date_issue: r.date_issue ?? "2023-01-01",
-          }));
-          setResearchers(normalized);
-        }
-      } catch (err) {
-        console.error("Error cargando datos:", err);
-      }
-    }
-    load();
-  }, []);
-
-  // filtro y busqueda
-  const filtered = researchers.filter((r) => {
-    const matchesSearch =
-      r.name.toLowerCase().includes(search.toLowerCase()) ||
-      r.idUser.toString().includes(search);
-    const matchesState = filterState === "all" || r.state === filterState;
-    return matchesSearch && matchesState;
+export default function ResearchersPage() {
+  const [researchers, setResearchers] = useState<any[]>([]);
+  const [filtered, setFiltered] = useState<any[]>([]);
+  const [openModal, setOpenModal] = useState(false);
+  const [editing, setEditing] = useState<any | null>(null);
+  const [newResearcher, setNewResearcher] = useState({
+    first_name: "",
+    last_name: "",
+    role: "researcher",
   });
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
-  const start = (currentPage - 1) * pageSize;
-  const paginated = filtered.slice(start, start + pageSize);
+  // Paginación
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
-  // stats
-  const stats = [
-    { title: "Total Investigadores", value: researchers.length },
-    { title: "Investigadores Activos", value: researchers.filter((r) => r.state === "active").length },
-    { title: "Investigadores Inactivos", value: researchers.filter((r) => r.state !== "active").length },
-  ];
+  // ✅ Cargar investigadores desde la API
+  async function loadResearchers() {
+    const res = await fetch("/api/mock/researchers");
+    const data = await res.json();
+
+    // ✅ El backend ya devuelve name completo
+    const normalized = (Array.isArray(data) ? data : []).map((u: any) => ({
+      id: u.id ?? u.iduser ?? 0,
+      name: u.name ?? "Sin nombre",
+      role: u.role ?? "",
+      status: u.status ?? "pendiente",
+      created_at: u.created_at ?? "",
+    }));
+
+    console.log("✅ Normalizados en frontend:", normalized);
+
+    setResearchers(normalized);
+    setFiltered(normalized);
+  }
+
+  useEffect(() => {
+    loadResearchers();
+  }, []);
+
+  // ✅ Guardar o actualizar investigador
+  async function handleSave() {
+    const method = editing ? "PUT" : "POST";
+    const body = editing
+      ? { ...editing, ...newResearcher }
+      : { ...newResearcher };
+
+    const res = await fetch("/api/mock/researchers", {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+
+    if (!res.ok) throw new Error("Error al guardar investigador");
+
+    await loadResearchers();
+    setOpenModal(false);
+    setEditing(null);
+    setNewResearcher({ first_name: "", last_name: "", role: "researcher" });
+  }
+
+  // ✅ Eliminar investigador
+  async function handleDelete(id: number) {
+    if (!confirm("¿Seguro que deseas eliminar este investigador?")) return;
+
+    const res = await fetch(`/api/mock/researchers?id=${id}`, {
+      method: "DELETE",
+    });
+
+    if (!res.ok) throw new Error("Error al eliminar investigador");
+
+    await loadResearchers();
+  }
+
+  // ✅ Editar investigador
+  function handleEdit(user: any) {
+    setEditing(user);
+    const [first, last] = (user.name ?? "").split(" ");
+    setNewResearcher({
+      first_name: first || "",
+      last_name: last || "",
+      role: user.role,
+    });
+    setOpenModal(true);
+  }
+
+  // ✅ Buscar por nombre o rol
+  function handleSearch(query: string) {
+    const lower = query.toLowerCase();
+    const filteredList = researchers.filter(
+      (r) =>
+        (r.name ?? "").toLowerCase().includes(lower) ||
+        (r.role ?? "").toLowerCase().includes(lower)
+    );
+    setFiltered(filteredList);
+    setCurrentPage(1);
+  }
+
+  // ✅ Paginación
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginated = filtered.slice(startIndex, startIndex + itemsPerPage);
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+
+  // ✅ Contadores
+  const total = researchers.length;
+  const activos = researchers.filter((r) => r.status === "aprobado").length;
+  const inactivos = total - activos;
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <header>
-        <Title>Módulo de Gestión de Investigadores</Title>
-        <Paragraph>Administrar investigadores asociados a su institución.</Paragraph>
-      </header>
-
-      {/* Informacion Institucion */}
-      <section className="rounded-xl border p-6 bg-white shadow-sm">
-        <div className="flex items-center justify-between gap-6">
-          <div>
-            <h3 className="text-lg font-semibold">Información de la Institución</h3>
-            <p className="text-sm text-gray-600 mt-2">{institution?.name ?? "Institución no disponible"}</p>
-            <p className="text-sm text-gray-500 mt-1">{institution?.address}</p>
-          </div>
-
-          <div className="flex items-center gap-6">
-            {/* Logo */}
-            <div className="w-20 h-20 rounded-md border flex items-center justify-center bg-gray-50">
-              {institution?.logo ? (
-                <img src={institution.logo} alt="logo" className="w-16 h-16 object-contain" />
-              ) : (
-                <div className="text-xs text-gray-500">Logo</div>
-              )}
-            </div>
-
-            {/* Color corporativo */}
-            <div className="text-sm text-gray-600">
-              <div>Color Corporativo</div>
-              <div
-                style={{ width: 36, height: 36, borderRadius: 6, background: institution?.color ?? "#6b7280" }}
-                className="mt-2 border"
-              />
-            </div>
-
-            <div>
-              <div className="text-sm text-gray-600">Total Investigadores</div>
-              <div className="text-2xl font-semibold mt-1">{researchers.length}</div>
-            </div>
-          </div>
+    <div className="p-8 space-y-8">
+      {/* Contadores */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-white shadow-md rounded-xl p-5 text-center">
+          <p className="text-gray-500 font-medium">Total Investigadores</p>
+          <p className="text-3xl font-bold text-gray-700">{total}</p>
         </div>
-      </section>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {stats.map((s, i) => (
-          <StatsCard key={i} title={s.title} value={s.value} />
-        ))}
+        <div className="bg-white shadow-md rounded-xl p-5 text-center">
+          <p className="text-gray-500 font-medium">Activos</p>
+          <p className="text-3xl font-bold text-green-600">{activos}</p>
+        </div>
+        <div className="bg-white shadow-md rounded-xl p-5 text-center">
+          <p className="text-gray-500 font-medium">Inactivos</p>
+          <p className="text-3xl font-bold text-red-500">{inactivos}</p>
+        </div>
       </div>
 
-      {/* Tabla + acciones */}
-      <section className="space-y-4">
-        <div className="flex justify-between items-center">
-          <Subtitle>Gestión de Investigadores</Subtitle>
-          <Button variant="primary" size="md">+ Agregar Investigador</Button>
-        </div>
+      {/* Barra de búsqueda y botón */}
+      <div className="flex flex-wrap justify-between items-center gap-3">
+        <SearchBar
+          placeholder="Buscar por nombre o rol..."
+          onSearch={handleSearch}
+        />
+        <button
+          onClick={() => {
+            setEditing(null);
+            setOpenModal(true);
+          }}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow transition"
+        >
+          + Agregar Investigador
+        </button>
+      </div>
 
-        <div className="flex gap-4 justify-between">
-          <SearchBar placeholder="Buscar por nombre o ID..." onSearch={setSearch} />
-          <DropdownSelect
-            value={filterState}
-            onChange={setFilterState}
-            options={[
-              { value: "all", label: "Todos" },
-              { value: "active", label: "Activo" },
-              { value: "inactive", label: "Inactivo" },
-            ]}
-          />
-        </div>
-
-        {/* Tabla */}
-        <div className="overflow-hidden rounded-xl border bg-white shadow-sm">
-          <table className="w-full text-left">
-            <thead className="bg-gray-50 text-gray-600 text-sm">
+      {/* Tabla */}
+      <div className="overflow-x-auto bg-white rounded-xl shadow">
+        <table className="w-full border-collapse">
+          <thead className="bg-gray-100 text-gray-700 uppercase text-sm">
+            <tr>
+              <th className="py-3 px-4 text-left">Nombre</th>
+              <th className="py-3 px-4 text-left">Rol</th>
+              <th className="py-3 px-4 text-left">Estado</th>
+              <th className="py-3 px-4 text-left">Fecha de Adición</th>
+              <th className="py-3 px-4 text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {paginated.length === 0 ? (
               <tr>
-                <th className="p-3">Nombre</th>
-                <th className="p-3">Rol</th>
-                <th className="p-3">Estado</th>
-                <th className="p-3">Fecha de Adición</th>
-                <th className="p-3">Acciones</th>
+                <td colSpan={5} className="text-center py-6 text-gray-500 italic">
+                  No hay investigadores para mostrar.
+                </td>
               </tr>
-            </thead>
-
-            <tbody>
-              {paginated.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="p-6 text-center text-gray-500">No hay investigadores para mostrar.</td>
+            ) : (
+              paginated.map((r) => (
+                <tr key={r.id} className="border-t hover:bg-gray-50 transition">
+                  <td className="py-3 px-4 font-medium text-gray-800">
+                    {r.name}
+                  </td>
+                  <td className="py-3 px-4 text-gray-600 capitalize">
+                    {r.role}
+                  </td>
+                  <td
+                    className={`py-3 px-4 font-semibold ${
+                      r.status === "aprobado"
+                        ? "text-green-600"
+                        : "text-yellow-600"
+                    }`}
+                  >
+                    {r.status}
+                  </td>
+                  <td className="py-3 px-4 text-gray-500">
+                    {r.created_at || "—"}
+                  </td>
+                  <td className="py-3 px-4 text-center">
+                    <div className="flex justify-center gap-3">
+                      <button
+                        onClick={() => handleEdit(r)}
+                        className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition"
+                      >
+                        Editar
+                      </button>
+                      <button
+                        onClick={() => handleDelete(r.id)}
+                        className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition"
+                      >
+                        Eliminar
+                      </button>
+                    </div>
+                  </td>
                 </tr>
-              ) : (
-                paginated.map((r) => (
-                  <tr key={r.idUser} className="border-t text-gray-600">
-                    <td className="p-3">{r.name}</td>
-                    <td className="p-3">Investigador</td>
-                    <td className="p-3">{r.state}</td>
-                    <td className="p-3">{r.date_issue}</td>
-                    <td className="p-3 space-x-2">
-                      <Button variant="secondary" size="sm">Editar</Button>
-                      <Button variant="danger" size="sm">Eliminar</Button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
 
-          <div className="p-3 border-t text-sm flex justify-between items-center">
-            <div>Mostrando {researchers.length} investigadores.</div>
-            <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={(p) => setCurrentPage(p)} />
+      {/* Paginación */}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+      />
+
+      {/* Modal */}
+      {openModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-[400px]">
+            <h3 className="text-lg font-semibold mb-4 text-gray-700">
+              {editing ? "Editar Investigador" : "Agregar Investigador"}
+            </h3>
+
+            <input
+              type="text"
+              placeholder="Nombre"
+              value={newResearcher.first_name}
+              onChange={(e) =>
+                setNewResearcher({ ...newResearcher, first_name: e.target.value })
+              }
+              className="w-full border border-gray-300 rounded px-3 py-2 mb-3 focus:ring-2 focus:ring-blue-400 outline-none"
+            />
+            <input
+              type="text"
+              placeholder="Apellido"
+              value={newResearcher.last_name}
+              onChange={(e) =>
+                setNewResearcher({ ...newResearcher, last_name: e.target.value })
+              }
+              className="w-full border border-gray-300 rounded px-3 py-2 mb-3 focus:ring-2 focus:ring-blue-400 outline-none"
+            />
+            <select
+              value={newResearcher.role}
+              onChange={(e) =>
+                setNewResearcher({ ...newResearcher, role: e.target.value })
+              }
+              className="w-full border border-gray-300 rounded px-3 py-2 mb-4 focus:ring-2 focus:ring-blue-400 outline-none"
+            >
+              <option value="researcher">Researcher</option>
+              <option value="institution">Institution</option>
+            </select>
+
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setOpenModal(false)}
+                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-gray-700"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleSave}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded"
+              >
+                {editing ? "Guardar Cambios" : "Agregar"}
+              </button>
+            </div>
           </div>
         </div>
-      </section>
+      )}
     </div>
   );
 }
+
