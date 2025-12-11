@@ -33,10 +33,10 @@ export default function LoginPage() {
 };
 
   return (
-    <div className="w-full h-screen flex bg-white">
+    <div className="w-full h-screen flex bg-white text-gray-400">
       {/* PANEL IZQUIERDO */}
       <div className="w-1/2 flex flex-col justify-center px-24">
-        <h1 className="text-3xl font-bold mb-8">Iniciar Sesión</h1>
+        <h1 className="text-3xl font-bold mb-8 text-sky-600">Iniciar Sesión</h1>
 
         {/* Email */}
         <label className="text-sm font-medium">Email</label>
