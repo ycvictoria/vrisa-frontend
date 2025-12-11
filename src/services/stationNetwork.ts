@@ -61,3 +61,79 @@ export async function toggleUserStatus(stationId: number, userId: number) {
   if (error) throw error;
 }
 
+
+// 1️⃣ Todas las estaciones
+export async function getAllStations() {
+  const { data, error } = await supabase
+    .from("station")
+    .select("*, ubication(*)");
+
+  if (error) throw error;
+  return data;
+}
+
+// 2️⃣ Red del investigador (estaciones asociadas)
+export async function getResearcherNetworkStations(idUser: number) {
+  const { data, error } = await supabase.rpc(
+    "get_researcher_network_stations",
+    { _iduser: idUser }
+  );
+
+  if (error) throw error;
+  return data;
+}
+
+// 3️⃣ Alternar entrar/salir de una estación
+export async function toggleResearcherStationMembership(
+  idUser: number,
+  idStation: number
+) {
+  const { data, error } = await supabase.rpc(
+    "toggle_researcher_station",
+    {
+      _iduser: idUser,
+      _idstation: idStation
+    }
+  );
+
+  if (error) throw error;
+  return data;
+}
+//estaciones con acceso para el jusuario
+export async function getUserNetwork(userId: number) {
+  const { data, error } = await supabase.rpc("get_user_network", {
+    _user_id: userId,
+  });
+
+  if (error) throw error;
+  return data;
+
+}
+
+//para hacer request de autorizacion a estacion 
+export async function requestJoinStation(userId: number, stationId: number) {
+  const { data, error } = await supabase.rpc("request_join_station", {
+    _user_id: userId,
+    _station_id: stationId,
+  });
+
+  if (error) throw error;
+  return data;
+}
+
+//request estaciones con  acceso aprobado a estacion
+export async function getApprovedStations(userId: number) {
+  const { data, error } = await supabase.rpc("get_user_approved_stations", {
+    _user_id: userId,
+  });
+
+  if (error) throw error;
+  return data;
+}
+export async function getPendingRequests(userId: number) {
+  const { data, error } = await supabase.rpc("get_user_pending_requests", {
+    _user_id: userId,
+  });
+  if (error) throw error;
+  return data;
+}

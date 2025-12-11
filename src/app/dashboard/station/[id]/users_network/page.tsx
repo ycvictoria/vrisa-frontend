@@ -7,6 +7,7 @@ import { Title, Subtitle, Paragraph } from "@/components/Text";
 import Button from "@/components/Button";
 
 import { getStationNetworkUsers, toggleUserStatus } from "@/services/stationNetwork";
+import {getEstacionNombre} from "@/services/stations"
 
 interface StationUser {
   iduser: number;
@@ -24,12 +25,18 @@ export default function StationUserNetworkPage() {
 
   const [users, setUsers] = useState<StationUser[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  const [nameStation, setNameStation] = useState("");
 
   async function loadUsers() {
     try {
       setLoading(true);
       const data = await getStationNetworkUsers(stationId);
+      const id= stationId;
+      const name= await getEstacionNombre(id);
+      setNameStation(name);
       setUsers(data);
+      
     } catch (err) {
       console.error("Error cargando usuarios:", err);
     } finally {
@@ -53,7 +60,7 @@ export default function StationUserNetworkPage() {
   return (
     <div className="space-y-8 mt-4 ml-4 text-gray-700">
       <header>
-        <Title>👥 Usuarios conectados a la estación</Title>
+        <Title>👥 Usuarios conectados a la estación  {nameStation}</Title>
         <Paragraph>
           Aquí puedes administrar las solicitudes y accesos de los usuarios asociados.
         </Paragraph>
@@ -75,6 +82,8 @@ export default function StationUserNetworkPage() {
             <table className="min-w-full text-md">
               <thead className="bg-gray-100 text-gray-600">
                 <tr>
+                  
+                  <th className="px-4 py-2 text-left">Id</th>
                   <th className="px-4 py-2 text-left">Nombre</th>
                   <th className="px-4 py-2 text-left">Email</th>
                   <th className="px-4 py-2 text-left">Estado</th>
@@ -88,6 +97,9 @@ export default function StationUserNetworkPage() {
               <tbody>
                 {users.map((u) => (
                   <tr key={u.iduser} className="border-b last:border-b-0">
+                     <td className="px-4 py-2 font-medium">
+                      {u.iduser} 
+                    </td>
                     <td className="px-4 py-2 font-medium">
                       {u.first_name} {u.last_name}
                     </td>
@@ -105,10 +117,12 @@ export default function StationUserNetworkPage() {
                         {u.status}
                       </span>
                     </td>
+                    
 
-                  <td className="px-4 py-2 text-gray-500">
-                      {new Date(u.date_issue).toLocaleDateString()}
+                    <td className="px-4 py-2 text-gray-500">
+                      {new Date(u.date_registration).toLocaleDateString()}
                     </td>
+                    
 
                     <td className="px-4 py-2 text-gray-500">
                       {new Date(u.last_status_change).toLocaleDateString()}
