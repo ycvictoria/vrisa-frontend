@@ -1,3 +1,4 @@
+"use client";
 import { SessionProvider } from "@/context/SessionContext";
 import Sidebar from "@/components/Sidebar";
 
