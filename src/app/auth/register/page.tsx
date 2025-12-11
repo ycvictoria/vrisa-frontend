@@ -36,7 +36,7 @@ export default function RegisterPage() {
 };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex text-gray-500">
       {/* Panel izquierdo con formulario */}
       <div className="w-1/2 bg-white p-12 flex flex-col justify-center">
         

@@ -13,11 +13,13 @@ export const sidebarItems: any = {
   researcher: [
     { name: "Mis estaciones", href: "researcher/stations", icon: "📊" },
     { name: "Reportes", href: "researcher/reports", icon: "📈" },
+
   ],
 
   institution: [
-    { name: "Mis estaciones", href: "institution/stations", icon: "🏭" },
-    { name: "Reporte de estaciones", href: "institution/reportes", icon: "📥" },
+   // { name: "Mis estaciones", href: "institution/stations/1", icon: "🏭" },
+     { name: "Permisos de Investigadores", href: "admin/stations/researcher", icon: "📝" },
+    { name: "Reporte de estaciones", href: "institution/reports", icon: "📥" },
   ],
 station: [
   { name: "Usuarios de estación", href: "station/:id/users_network", icon: "👥" },
@@ -27,5 +29,11 @@ station: [
     { name: "Ver estaciones públicas", href: "citizen", icon: "🌍" }
   ],
 
+  admin:[
+    
+    { name: "Gestión de Usuarios", href: "admin/users", icon: "👨🏻‍💻" },
+     { name: "Reportes", href: "researcher/reports", icon: "📈" },
+      { name: "Ver estaciones públicas", href: "citizen", icon: "🌍" },
+  ]
 
 };

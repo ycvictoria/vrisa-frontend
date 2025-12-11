@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { sidebarItems } from "@/lib/sidebarItems";
 import { useSession } from "@/context/SessionContext";
+import { Subtitle } from "./Text";
 
 export default function Sidebar() {
   const path = usePathname();
@@ -36,6 +37,7 @@ export default function Sidebar() {
   return (
     <aside className="w-64 bg-white border-r p-6 space-y-6">
       <nav className="space-y-2">
+         <Subtitle>{role}</Subtitle>
         {items.map(
           (item: { name: string; href: string; icon?: string }, idx: number) => {
             let finalHref = item.href.includes(":id")
@@ -61,6 +63,7 @@ export default function Sidebar() {
           }
         )}
       </nav>
+     
     </aside>
   );
 }
