@@ -5,7 +5,7 @@ import {  SmallText } from "@/components/Text";
 import Pagination from "@/components/Pagination";
 import Button from "@/components/Button";
 
-export function UsersTable({ users }: any) {
+export function UsersTable({ users , onUpdate}: any) {
   const pageSize = 10;
   const totalPages = Math.ceil(users.length / pageSize);
 
@@ -24,9 +24,11 @@ export function UsersTable({ users }: any) {
             <th className="p-3">Nombre</th>
             <th className="p-3">Email</th>
             <th className="p-3">Rol</th>
-            <th className="p-3">Status</th>
-            <th className="p-3">Último Login</th>
-            <th className="p-3">Acciones</th>
+            <th className="p-3">Status Autorización</th>
+            <th className="p-3">Acceso</th>
+            <th className="p-3">Día registro</th>
+            <th className="p-3">Autorización Pendiente</th>
+             <th className="p-3">Activar/Inactivar</th>
           </tr>
         </thead>
 
@@ -39,21 +41,65 @@ export function UsersTable({ users }: any) {
             </tr>
           ) : (
           paginatedUsers.map((u: any, i: number) => (
+            
             <tr key={i} className="border-t text-gray-600 ">
-              <td className="p-3">{u.idUser}</td>
+
+              <td className="p-3">{u.iduser}</td>
               <td className="p-3">{u.first_name +" "+ u.last_name}</td>
               <td className="p-3">{u.email}</td>
               <td className="p-3"><RoleBadge role={u.role} /></td>
-              <td className="p-3">{u.status}</td>
-              <td className="p-3">{u.lastLogin}</td>
-              <td className="p-3 space-x-2">
-                 <Button variant="primary" size="sm">
-                           Autorizar
-                         </Button>
-                         <Button variant="secondary" size="sm">
-                           Rechazar
-                         </Button>
-              </td>
+              <td className="p-3">{u.authorization_status}</td>
+              <td className="p-3">{u.account_status}</td>
+              <td className="p-3">{u.registration_date}</td>
+              <td className="flex gap-2">
+
+  {/* SI ESTÁ PENDIENTE → MOSTRAR AUTORIZACIÓN Y RECHAZO */}
+  {u.authorization_status === "pendiente" && (
+    <>
+      <Button
+        variant="primary"
+        size="md"
+        onClick={() => onUpdate("authorize", u.iduser)}
+      >
+        Autorizar
+      </Button>
+
+      <Button
+        variant="secondary"
+        size="md"
+        onClick={() => onUpdate("reject", u.iduser)}
+      >
+        Rechazar
+      </Button>
+    </>
+  )}
+
+  
+</td>
+<td>
+{/* BOTONES SIEMPRE VISIBLES — pero deshabilitados si NO está aprobado */}
+  {u.account_status === "activo" ? (
+    <Button
+      variant="secondary"
+      size="md"
+      className="bg-blue-200"
+      disabled={u.authorization_status !== "aprobado"}
+      onClick={() => onUpdate("deactivate", u.iduser)}
+    >
+      Inactivar
+    </Button>
+  ) : (
+    <Button
+      variant="primary"
+      size="md"
+      disabled={u.authorization_status !== "aprobado"}
+      onClick={() => onUpdate("activate", u.iduser)}
+    >
+      Activar
+    </Button>
+  )}
+
+</td>
             </tr>
           ))
           )
@@ -62,7 +108,7 @@ export function UsersTable({ users }: any) {
       </table>
 
         
-      <div className="p-3 border-t text-sm flex justify-between">
+      <div className="p-3 border-t text-sm flex justify-between text-gray-500">
         
         <SmallText> Mostrando {users.length} usuarios. </SmallText>
          <Pagination

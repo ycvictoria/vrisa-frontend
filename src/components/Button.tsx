@@ -1,12 +1,10 @@
-import React from "react";
-import clsx from "clsx";
-
 type ButtonProps = {
   variant?: "primary" | "secondary" | "danger";
   size?: "sm" | "md" | "lg";
   children: React.ReactNode;
   onClick?: () => void;
   className?: string;
+  disabled?: boolean;   // 👈 AÑADIMOS ESTO
 };
 
 export default function Button({
@@ -14,7 +12,8 @@ export default function Button({
   size = "md",
   children,
   onClick,
-  className,
+  className = "",
+  disabled = false,     // 👈 VALOR DEFAULT
 }: ButtonProps) {
   const base = "rounded-lg shadow-sm font-medium transition";
 
@@ -25,15 +24,22 @@ export default function Button({
   };
 
   const sizes = {
-    sm: "px-2 py-1 text-sm",
+    sm: "px-3 py-1 text-sm",
     md: "px-4 py-2",
     lg: "px-6 py-3 text-lg",
   };
 
   return (
     <button
-      onClick={onClick}
-      className={clsx(base, variants[variant], sizes[size], className)}
+      onClick={disabled ? undefined : onClick}
+      disabled={disabled}
+      className={`
+        ${base}
+        ${variants[variant]}
+        ${sizes[size]}
+        ${disabled ? "opacity-50 cursor-not-allowed hover:none" : ""}
+        ${className}
+      `}
     >
       {children}
     </button>

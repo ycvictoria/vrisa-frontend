@@ -6,61 +6,94 @@ import { UsersTable } from "@/components/UsersTable";
 import SearchBar from "@/components/SearchBar";
 import DropdownSelect from "@/components/DropdownSelect";
 import Button from "@/components/Button";
+import AddUserDialog from "@/components/AddUserDialog";
 import { Title, Subtitle, Paragraph } from "@/components/Text";
-import { User } from "@/types/User";
+import { User } from "@/types/data_types";
+import { getAllUsers , authorizeUser,rejectUser,activateUser,deactivateUser} from "@/services/services";
 
 export default function UsersAdminPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
+const [isDialogOpen, setIsDialogOpen] = useState(false);
+const handleUserCreated = (newUser: User) => {
+  setUsers((prev) => [...prev, newUser]);  // Agrega sin recargar
+};
 
- 
-  //  Filtro combinado
- 
-  const filteredUsers = users.filter((u) => {
-    const matchesSearch =
-      u.first_name.toLowerCase().includes(search.toLowerCase()) ||
-      u.idUser.toString().includes(search.toLowerCase());
+const safeUsers = Array.isArray(users)
+  ? users.filter((u) => u && typeof u === "object")
+  : [];
+const filteredUsers = (safeUsers ?? []).filter((u) => {
+  if (!u) return false; // evita undefined
 
-    const matchesStatus =
-      filterStatus === "all" || u.status === filterStatus;
+  const firstName = u.first_name ?? "";
+  const lastName  = u.last_name ?? "";
+  const id        = String(u.iduser ?? "");
 
-    return matchesSearch && matchesStatus;
-  });
+  const matchesSearch =
+    firstName.toLowerCase().includes(search.toLowerCase()) ||
+    lastName.toLowerCase().includes(search.toLowerCase()) ||
+    id.includes(search.toLowerCase());
 
-  
-  //  Cargar usuarios mock
- 
-  useEffect(() => {
-    async function loadUsers() {
-      try {
-        const res = await fetch("/api/mock/users");
-        if (res.ok) {
-          const data = await res.json();
-          setUsers(data);
-        }
-      } catch (error) {
-        console.error("Error cargando usuarios:", error);
-      }
+  const matchesStatus =
+    filterStatus === "all" || u.account_status === filterStatus;
+
+  return matchesSearch && matchesStatus;
+});
+
+
+ async function loadUsers() {
+    try {
+      const data = await getAllUsers();
+      setUsers(data);
+    } catch (error) {
+      console.error("Error cargando usuarios:", error);
     }
+  }
 
+  useEffect(() => {
     loadUsers();
   }, []);
 
-  
-  // Stats dinámicos
+  async function handleUserUpdate(action: string, id: number) {
+  try {
+    switch (action) {
+      case "authorize":
+        await authorizeUser(id);
+        break;
+      case "reject":
+        await rejectUser(id);
+        break;
+      case "activate":
+        await activateUser(id);
+        break;
+      case "deactivate":
+        await deactivateUser(id);
+        break;
+    }
+
+    // refrescar usuarios después de actualizar
+    loadUsers();
+  } catch (err) {
+    console.error("Error actualizando usuario:", err);
+  }
+}
+
   const stats = [
     { title: "Usuarios totales", value: users.length },
     {
       title: "Usuarios activos",
-      value: users.filter((u) => u.status === "active").length,
+      value: users.filter((u) => u.account_status === "activo").length,
     },
-    { title: "Autorizaciones pendientes", value: 1 },
+    {
+      title: "Autorizaciones pendientes",
+      value: users.filter((u) => u.authorization_status === "pendiente").length,
+    },
   ];
+  
 
   return (
     <div className="space-y-8">
-      {/* Header */}
       <header>
         <Title>👨🏻‍💻 Gestión de Usuarios y Autorizaciones</Title>
         <Paragraph>
@@ -68,24 +101,20 @@ export default function UsersAdminPage() {
         </Paragraph>
       </header>
 
-      {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {stats.map((s, i) => (
           <StatsCard key={i} title={s.title} value={s.value} />
         ))}
       </div>
 
-      {/* Tabla */}
       <section className="space-y-4">
         <div className="flex justify-between items-center">
           <Subtitle>Todos los usuarios</Subtitle>
-          <Button variant="primary" size="md">
+          <Button variant="primary" size="md" onClick={() => setIsDialogOpen(true)}>
             + Agregar Nuevo Usuario
           </Button>
-          
         </div>
 
-        {/* 🔍 Buscador + Filtro */}
         <div className="flex gap-4 justify-between">
           <SearchBar
             placeholder="Buscar por nombre o ID..."
@@ -93,20 +122,27 @@ export default function UsersAdminPage() {
           />
 
           <DropdownSelect
-          
             value={filterStatus}
             onChange={setFilterStatus}
             options={[
               { value: "all", label: "Todos" },
-              { value: "active", label: "Activos" },
-              { value: "inactive", label: "Inactivos" },
+              { value: "activo", label: "Activos" },
+              { value: "inactivo", label: "Inactivos" },
             ]}
           />
         </div>
 
-        {/* Tabla filtrada */}
-        <UsersTable users={filteredUsers} />
+        <UsersTable users={filteredUsers}  onUpdate={handleUserUpdate} />
+
+         <AddUserDialog
+        isOpen={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        
+        onUserCreated={handleUserCreated}
+       
+      />
       </section>
+      
     </div>
   );
 }
