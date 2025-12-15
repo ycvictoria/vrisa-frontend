@@ -1,4 +1,4 @@
-﻿# vrisa-backend
+﻿# vrisa-frontend
 
  Proyecto desarrollado para la gestión, visualización y participación ciudadana en estaciones de monitoreo ambiental, integrando un frontend en Next.js, Supabase como backend-as-a-service, y conexión con el repositorio backend en Node.js.
 
@@ -11,6 +11,8 @@ yarn install
 
 ## Abrir la app en vercel, navegador
 https://vrisa-frontendproyect-git-main-victoriaycs-projects.vercel.app/
+
+git solo para despliegue en vercel: https://github.com/ycvictoria/vrisa-frontend_proyect
 
 ## Ejecutar el entorno local
 npm run dev
