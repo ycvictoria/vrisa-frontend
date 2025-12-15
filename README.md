@@ -9,11 +9,15 @@ npm install
  o 
 yarn install
 
+## Abrir la app en vercel 
+https://vrisa-frontendproyect-git-main-victoriaycs-projects.vercel.app/
+
 ## Ejecutar el entorno local
 npm run dev
 
 ## Abrir el navegador en
 [Localhost 3000](http://localhost:3000/dashboard/admin/users)
+
 
 
 ## Paquetes principales usados:
